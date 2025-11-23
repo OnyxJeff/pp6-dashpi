@@ -1,4 +1,4 @@
-# pp0-dashpi
+# pp6-dashpi
 
 ![Build Status](https://github.com/OnyxJeff/pp0-dashpi/actions/workflows/build.yml/badge.svg)
 ![Maintenance](https://img.shields.io/maintenance/yes/2025.svg)
