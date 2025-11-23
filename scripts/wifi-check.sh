@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # DashPi WiFi watchdog script
+# shellcheck source=/usr/local/dashpi/config/wifi-watchdog.conf
 # ==============================
 
 CONFIG_FILE="/usr/local/dashpi/config/wifi-watchdog.conf"
