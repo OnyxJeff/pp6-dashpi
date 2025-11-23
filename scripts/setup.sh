@@ -49,8 +49,8 @@ done
 # 2️⃣ Copy scripts and systemd services
 # -------------------------------
 echo "[+] Copying scripts and systemd service files..."
-sudo cp -r ~/pp6-dashpi/scripts/* /usr/local/dashpi/scripts/
-sudo cp -r ~/pp6-dashpi/systemd/* /etc/systemd/system/
+sudo cp -r $HOME/pp6-dashpi/scripts/* /usr/local/dashpi/scripts/
+sudo cp -r $HOME/pp6-dashpi/systemd/* /etc/systemd/system/
 
 # -------------------------------
 # 3️⃣ Enable systemd services
