@@ -12,12 +12,13 @@ echo "[+] Creating directories..."
 sudo mkdir -p /usr/local/dashpi/config
 mkdir -p ~/pp6-dashpi/logs ~/pp6-dashpi/backup_logs
 
-# Copy default config if it doesn't exist
+# Default DakBoard URL
 CONFIG_FILE="/usr/local/dashpi/config/dakboard-url.txt"
 if [[ ! -f "$CONFIG_FILE" ]]; then
     echo "https://dakboard.com/screen/your-dakboard-share-url" | sudo tee "$CONFIG_FILE"
 fi
 
+# Default WiFi watchdog config
 WATCHDOG_CONFIG="/usr/local/dashpi/config/wifi-watchdog.conf"
 if [[ ! -f "$WATCHDOG_CONFIG" ]]; then
     sudo tee "$WATCHDOG_CONFIG" > /dev/null <<EOL

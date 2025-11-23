@@ -24,6 +24,5 @@ jobs:
           echo "Running ShellCheck on all scripts in scripts/..."
           for script in scripts/*.sh; do
             echo "Linting $script"
-            # Use -x to allow dynamic sources to be followed
             shellcheck -x "$script"
           done

@@ -1,40 +1,27 @@
 #!/usr/bin/env bash
-# -------------------------------------------------------------------
-# DashPi Update Script
-# Updates packages and logs results
-# -------------------------------------------------------------------
-
+# DashPi Auto-Updater Script
 LOGFILE="$HOME/pp6-dashpi/logs/dashpi.log"
-mkdir -p "$(dirname "$LOGFILE")"
-
 NOW=$(date '+%Y-%m-%d %H:%M:%S')
-echo "[$NOW] Starting DashPi update..." | tee -a "$LOGFILE"
 
-# Update
-if ! sudo apt-get update 2>&1 | sudo tee -a "$LOGFILE" >/dev/null; then
-    echo "[$NOW] apt-get update failed" | tee -a "$LOGFILE"
-fi
-
-# Fix broken packages
 {
-    echo "[$NOW] Running fix-broken install..."
-    sudo apt-get --fix-broken install -y
-} 2>&1 | sudo tee -a "$LOGFILE" >/dev/null
+    echo "[$NOW] Starting DashPi update..."
 
-# Upgrade packages
-{
-    echo "[$NOW] Running upgrade..."
-    sudo apt-get upgrade -y
-} 2>&1 | sudo tee -a "$LOGFILE" >/dev/null
+    if ! sudo apt-get update; then
+        echo "[$NOW] apt-get update failed!"
+    fi
 
-# Cleanup
-{
-    echo "[$NOW] Running autoremove..."
-    sudo apt-get autoremove -y
-    echo "[$NOW] Running clean..."
-    sudo apt-get clean
-    echo "[$NOW] Running autoclean..."
-    sudo apt-get autoclean
-} 2>&1 | sudo tee -a "$LOGFILE" >/dev/null
+    echo "[$NOW] Running Fix-Broken Install..."
+    sudo apt-get --fix-broken install -y || echo "[$NOW] Fix-broken failed"
 
-echo "[$NOW] DashPi update complete." | tee -a "$LOGFILE"
+    echo "[$NOW] Running Upgrade..."
+    sudo apt-get upgrade -y || echo "[$NOW] Upgrade failed"
+
+    echo "[$NOW] Running AutoRemove..."
+    sudo apt-get autoremove -y || echo "[$NOW] Autoremove failed"
+
+    echo "[$NOW] Running Clean..."
+    sudo apt-get clean || echo "[$NOW] Clean failed"
+    sudo apt-get autoclean || echo "[$NOW] Autoclean failed"
+
+    echo "[$NOW] Update complete!"
+} >> "$LOGFILE" 2>&1
