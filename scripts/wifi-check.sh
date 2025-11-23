@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # DashPi WiFi watchdog script
+# shellcheck source=/usr/local/dashpi/config/wifi-watchdog.conf
 # shellcheck disable=SC1091
 # ==============================
 
@@ -7,6 +8,7 @@ CONFIG_FILE="/usr/local/dashpi/config/wifi-watchdog.conf"
 LOGFILE="$HOME/pp6-dashpi/logs/wifi-watchdog.log"
 
 mkdir -p "$(dirname "$LOGFILE")"
+# shellcheck disable=SC1090
 source "$CONFIG_FILE"
 
 NOW=$(date '+%Y-%m-%d %H:%M:%S')
