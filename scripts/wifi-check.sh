@@ -1,22 +1,18 @@
 #!/usr/bin/env bash
-# DashPi WiFi watchdog script
+# DashPi WiFi Watchdog
 # shellcheck source=/usr/local/dashpi/config/wifi-watchdog.conf
-# shellcheck disable=SC1091
-# ==============================
 
 CONFIG_FILE="/usr/local/dashpi/config/wifi-watchdog.conf"
-LOGFILE="$HOME/pp6-dashpi/logs/wifi-watchdog.log"
-
-mkdir -p "$(dirname "$LOGFILE")"
 # shellcheck disable=SC1090
 source "$CONFIG_FILE"
 
+LOGFILE="$HOME/pp6-dashpi/logs/wifi-watchdog.log"
 NOW=$(date '+%Y-%m-%d %H:%M:%S')
-echo "[$NOW] Checking WiFi..." | tee -a "$LOGFILE"
 
-if ! ping -I "$INTERFACE" -c 1 "$PING_TARGET" >/dev/null 2>&1; then
-    echo "[$NOW] WiFi down, restarting $INTERFACE..." | tee -a "$LOGFILE"
+ping -c1 "$PING_TARGET" > /dev/null 2>&1
+if [[ $? -ne 0 ]]; then
+    echo "[$NOW] WiFi down, restarting $INTERFACE..." >> "$LOGFILE"
     sudo ifdown "$INTERFACE" && sudo ifup "$INTERFACE"
 else
-    echo "[$NOW] WiFi is up." | tee -a "$LOGFILE"
+    echo "[$NOW] WiFi OK." >> "$LOGFILE"
 fi

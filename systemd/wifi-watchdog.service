@@ -3,9 +3,10 @@ Description=DashPi WiFi Watchdog
 After=network.target
 
 [Service]
-ExecStart=/usr/local/dakpi/scripts/wifi-check.sh
+User=dashpi
+ExecStart=/usr/local/dashpi/scripts/wifi-check.sh
 Restart=always
-RestartSec=60
+RestartSec=300
 
 [Install]
 WantedBy=multi-user.target

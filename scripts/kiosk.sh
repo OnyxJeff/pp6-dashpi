@@ -1,29 +1,25 @@
 #!/usr/bin/env bash
-# DashPi kiosk launcher (Chromium)
+# DashPi Chromium Kiosk Launcher
+# shellcheck source=/usr/local/dashpi/config/dakboard-url.txt
 
-# Path to DakBoard URL config
-DAKBOARD_URL_FILE="/usr/local/dakpi/config/dakboard-url.txt"
+CONFIG_FILE="/usr/local/dashpi/config/dakboard-url.txt"
 
-if [[ ! -f "$DAKBOARD_URL_FILE" ]]; then
-    echo "[ERROR] DakBoard URL file not found: $DAKBOARD_URL_FILE"
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo "[ERROR] DakBoard URL file not found: $CONFIG_FILE"
     exit 1
 fi
 
-URL=$(cat "$DAKBOARD_URL_FILE")
-
+URL=$(cat "$CONFIG_FILE")
 echo "[+] Launching Chromium kiosk with URL: $URL"
 
-# Kill any existing Chromium instances first
-pkill chromium-browser || true
+# Kill any existing Chromium instances
+pkill chromium || true
 
 # Start Chromium in kiosk mode
-/usr/bin/chromium-browser \
+/usr/bin/chromium \
     --noerrdialogs \
-    --kiosk \
-    --incognito "$URL" \
+    --kiosk "$URL" \
+    --incognito \
     --disable-translate \
     --no-first-run \
-    --window-size=800,600 \
     --disable-infobars &
-
-echo "[+] Chromium kiosk started."

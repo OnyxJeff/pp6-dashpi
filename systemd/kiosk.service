@@ -1,14 +1,13 @@
 [Unit]
-Description=DashPi Kiosk Service
-After=network-online.target
-Wants=network-online.target
+Description=DashPi Chromium Kiosk
+After=network.target
 
 [Service]
-User=pi
+User=dashpi
 Environment=DISPLAY=:0
-ExecStart=/usr/bin/xinit /usr/local/dakpi/scripts/kiosk.sh --
+ExecStart=/usr/local/dashpi/scripts/kiosk.sh
 Restart=always
 RestartSec=5
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=graphical.target

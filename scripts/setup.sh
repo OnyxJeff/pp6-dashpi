@@ -1,55 +1,39 @@
 #!/usr/bin/env bash
-# -------------------------------------------------------------------
-# DashPi Setup Script (Chromium Kiosk)
-# -------------------------------------------------------------------
-
+# DashPi Setup Script for Raspberry Pi Zero 2W (Chromium kiosk)
 set -e
 
-echo "[+] Updating OS..."
+echo "[+] Updating system packages..."
 sudo apt update && sudo apt upgrade -y
 
 echo "[+] Installing required packages..."
-sudo apt install -y chromium x11-xserver-utils unclutter matchbox-window-manager xdotool curl git wget
+sudo apt install -y chromium x11-xserver-utils unclutter
 
-# ------------------ Create folders ------------------
-echo "[+] Creating folders in /usr/local/dakpi..."
-sudo mkdir -p /usr/local/dashpi/scripts
+echo "[+] Creating directories..."
 sudo mkdir -p /usr/local/dashpi/config
-sudo mkdir -p /usr/local/dashpi/logs
+mkdir -p ~/pp6-dashpi/logs ~/pp6-dashpi/backup_logs
 
-# Copy local scripts/configs
-echo "[+] Copying scripts and configs..."
-sudo cp scripts/*.sh /usr/local/dashpi/scripts/
-sudo cp config/* /usr/local/dashpi/config/
-sudo chmod +x /usr/local/dashpi/scripts/*.sh
+# Copy default config if it doesn't exist
+CONFIG_FILE="/usr/local/dashpi/config/dakboard-url.txt"
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo "https://dakboard.com/screen/your-dakboard-share-url" | sudo tee "$CONFIG_FILE"
+fi
 
-# ------------------ Setup systemd service for Chromium kiosk ------------------
-echo "[+] Setting up Chromium kiosk service..."
-cat <<EOF | sudo tee /etc/systemd/system/kiosk.service
-[Unit]
-Description=Chromium Kiosk
-After=network.target
+WATCHDOG_CONFIG="/usr/local/dashpi/config/wifi-watchdog.conf"
+if [[ ! -f "$WATCHDOG_CONFIG" ]]; then
+    sudo tee "$WATCHDOG_CONFIG" > /dev/null <<EOL
+INTERFACE="wlan0"
+PING_TARGET="8.8.8.8"
+EOL
+fi
 
-[Service]
-User=pi
-Environment=XAUTHORITY=/home/dashpi/.Xauthority
-Environment=DISPLAY=:0
-ExecStart=/usr/bin/chromium --noerrdialogs --kiosk --incognito \$(cat /usr/local/dashpi/config/dakboard-url.txt) --disable-translate --no-first-run
-Restart=always
+echo "[+] Copying scripts and systemd service files..."
+sudo cp -r ~/pp6-dashpi/scripts/* /usr/local/dashpi/scripts/
+sudo cp -r ~/pp6-dashpi/systemd/* /etc/systemd/system/
 
-[Install]
-WantedBy=graphical.target
-EOF
-
-# ------------------ Setup WiFi watchdog service ------------------
-echo "[+] Installing WiFi watchdog service..."
-sudo cp systemd/wifi-watchdog.service /etc/systemd/system/
+echo "[+] Enabling systemd services..."
 sudo systemctl daemon-reload
 sudo systemctl enable kiosk.service
 sudo systemctl enable wifi-watchdog.service
 
-# ------------------ Create log folders in home ------------------
-mkdir -p ~/pp6-dashpi/logs ~/pp6-dashpi/backup_logs
-
-echo "[+] Setup complete! Rebooting to start kiosk..."
+echo "[+] Setup complete. Rebooting..."
 sudo reboot
