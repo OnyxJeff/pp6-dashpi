@@ -34,7 +34,7 @@ After=network.target
 User=pi
 Environment=XAUTHORITY=/home/dashpi/.Xauthority
 Environment=DISPLAY=:0
-ExecStart=/usr/bin/chromium-browser --noerrdialogs --kiosk --incognito \$(cat /usr/local/dashpi/config/dakboard-url.txt) --disable-translate --no-first-run
+ExecStart=/usr/bin/chromium --noerrdialogs --kiosk --incognito \$(cat /usr/local/dashpi/config/dakboard-url.txt) --disable-translate --no-first-run
 Restart=always
 
 [Install]
