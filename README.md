@@ -14,11 +14,13 @@ It does exactly one job and refuses to complain about it.
 ## 📁 Repo Structure
 
 ```text
-pp0-dashpi/
+pp6-dashpi/
 ├── .github/workflows/      # CI for YAML validation
 ├── backup_logs/            # Oldest logs from update script
+├── config/                 # Archived logs from update scripts
 ├── logs/                   # Most recent runtime/update logs
 ├── scripts/                # Setup, WiFi watchdog, updater
+├── systemd/                # Systemd service files for kiosk and WiFi watchdog
 └── README.md               # You're reading it!
 ```
 
