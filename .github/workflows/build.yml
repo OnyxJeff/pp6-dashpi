@@ -1,0 +1,28 @@
+name: DashPi Build Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  shellcheck:
+    name: Shell Script Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Find and Lint Scripts
+        run: |
+          echo "Running ShellCheck on all scripts in scripts/..."
+          for script in scripts/*.sh; do
+            echo "Linting $script"
+            shellcheck "$script"
+          done
