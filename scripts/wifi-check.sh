@@ -1,15 +1,46 @@
 #!/usr/bin/env bash
 # DashPi WiFi Watchdog
-CONFIG_FILE="/usr/local/dashpi/config/wifi-watchdog.conf"
+# Checks connectivity and restarts wlan0 if ping fails
+
+set -e
+
+# -------------------------------
+# Config
+# -------------------------------
+SYSTEM_CONFIG_DIR="/usr/local/dashpi/config"
+CONFIG_FILE="$SYSTEM_CONFIG_DIR/wifi-watchdog.conf"
+
+# shellcheck disable=SC1091
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo "[!] WiFi watchdog config not found: $CONFIG_FILE"
+    exit 1
+fi
+
+# Load configuration
 # shellcheck disable=SC1090
 source "$CONFIG_FILE"
 
-LOGFILE="$HOME/pp6-dashpi/logs/wifi-watchdog.log"
-NOW=$(date '+%Y-%m-%d %H:%M:%S')
+# Validate variables
+: "${INTERFACE:?INTERFACE is not set in $CONFIG_FILE}"
+: "${PING_TARGET:?PING_TARGET is not set in $CONFIG_FILE}"
 
-if ! ping -c1 "$PING_TARGET" > /dev/null 2>&1; then
-    echo "[$NOW] WiFi down, restarting $INTERFACE..." >> "$LOGFILE"
-    sudo ifdown "$INTERFACE" && sudo ifup "$INTERFACE"
+LOG_FILE="/usr/local/dashpi/logs/wifi-watchdog.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+
+NOW=$(date '+%Y-%m-%d %H:%M:%S')
+echo "[$NOW] Checking WiFi ($INTERFACE -> $PING_TARGET)..." >> "$LOG_FILE"
+
+if ! ping -c 1 -W 2 "$PING_TARGET" &> /dev/null; then
+    echo "[$NOW] Ping failed — restarting $INTERFACE" >> "$LOG_FILE"
+    sudo ip link set "$INTERFACE" down
+    sleep 2
+    sudo ip link set "$INTERFACE" up
+    sleep 5
+    if ping -c 1 -W 2 "$PING_TARGET" &> /dev/null; then
+        echo "[$NOW] $INTERFACE restarted successfully" >> "$LOG_FILE"
+    else
+        echo "[$NOW] WARNING: $INTERFACE still unreachable!" >> "$LOG_FILE"
+    fi
 else
-    echo "[$NOW] WiFi OK." >> "$LOGFILE"
+    echo "[$NOW] WiFi is up" >> "$LOG_FILE"
 fi

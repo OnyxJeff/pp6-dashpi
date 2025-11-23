@@ -1,27 +1,46 @@
 #!/usr/bin/env bash
-# DashPi Auto-Updater Script
-LOGFILE="$HOME/pp6-dashpi/logs/dashpi.log"
+# DashPi Auto-Updater
+# Updates OS packages and logs results
+
+set -e
+
+# -------------------------------
+# Paths
+# -------------------------------
+LOG_DIR="$HOME/pp6-dashpi/logs"
+mkdir -p "$LOG_DIR"
+LOG_FILE="$LOG_DIR/dashpi.log"
 NOW=$(date '+%Y-%m-%d %H:%M:%S')
 
-{
-    echo "[$NOW] Starting DashPi update..."
+# -------------------------------
+# Logging function
+# -------------------------------
+log() {
+    echo "[$NOW] $*" | tee -a "$LOG_FILE"
+}
 
-    if ! sudo apt-get update; then
-        echo "[$NOW] apt-get update failed!"
-    fi
+log "Starting DashPi update..."
 
-    echo "[$NOW] Running Fix-Broken Install..."
-    sudo apt-get --fix-broken install -y || echo "[$NOW] Fix-broken failed"
+# -------------------------------
+# Update system
+# -------------------------------
+if ! sudo apt-get update | tee -a "$LOG_FILE"; then
+    log "WARNING: apt-get update failed"
+fi
 
-    echo "[$NOW] Running Upgrade..."
-    sudo apt-get upgrade -y || echo "[$NOW] Upgrade failed"
+if ! sudo apt-get --fix-broken install -y | tee -a "$LOG_FILE"; then
+    log "WARNING: fix-broken install failed"
+fi
 
-    echo "[$NOW] Running AutoRemove..."
-    sudo apt-get autoremove -y || echo "[$NOW] Autoremove failed"
+if ! sudo apt-get upgrade -y | tee -a "$LOG_FILE"; then
+    log "WARNING: apt-get upgrade failed"
+fi
 
-    echo "[$NOW] Running Clean..."
-    sudo apt-get clean || echo "[$NOW] Clean failed"
-    sudo apt-get autoclean || echo "[$NOW] Autoclean failed"
+log "Running autoremove..."
+sudo apt-get autoremove -y | tee -a "$LOG_FILE"
 
-    echo "[$NOW] Update complete!"
-} >> "$LOGFILE" 2>&1
+log "Cleaning package cache..."
+sudo apt-get clean | tee -a "$LOG_FILE"
+sudo apt-get autoclean | tee -a "$LOG_FILE"
+
+log "Update complete."
