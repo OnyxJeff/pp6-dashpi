@@ -9,7 +9,7 @@ echo "[+] Updating OS..."
 sudo apt update && sudo apt upgrade -y
 
 echo "[+] Installing required packages..."
-sudo apt install -y chromium-browser x11-xserver-utils unclutter matchbox-window-manager xdotool curl git wget
+sudo apt install -y chromium x11-xserver-utils unclutter matchbox-window-manager xdotool curl git wget
 
 # ------------------ Create folders ------------------
 echo "[+] Creating folders in /usr/local/dakpi..."
