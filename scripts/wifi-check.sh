@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # DashPi WiFi watchdog script
-# shellcheck source=/usr/local/dashpi/config/wifi-watchdog.conf
+# shellcheck disable=SC1091
 # ==============================
 
 CONFIG_FILE="/usr/local/dashpi/config/wifi-watchdog.conf"
