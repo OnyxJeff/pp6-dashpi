@@ -7,7 +7,7 @@
 ![Issues](https://img.shields.io/github/issues/OnyxJeff/pp6-dashpi)
 
 **DashPi** turns a Raspberry Pi Zero 2W into a tiny, stubbornly reliable fullscreen dashboard device.  
-It does exactly one job and refuses to complain about it.
+It does exactly one job — displaying your dashboard — and refuses to complain about it.
 
 ---
 
@@ -16,10 +16,10 @@ It does exactly one job and refuses to complain about it.
 ```text
 pp6-dashpi/
 ├── .github/workflows/      # CI for YAML validation
-├── backup_logs/            # Oldest logs from update script
-├── config/                 # Archived logs from update scripts
+├── backup_logs/            # Archived logs from update scripts
+├── config/                 # Configuration files (DakBoard URL, refresh interval, WiFi watchdog)
 ├── logs/                   # Most recent runtime/update logs
-├── scripts/                # Setup, WiFi watchdog, updater
+├── scripts/                # Setup, kiosk launcher, WiFi watchdog, updater
 ├── systemd/                # Systemd service files for kiosk and WiFi watchdog
 └── README.md               # You're reading it!
 ```
@@ -27,10 +27,11 @@ pp6-dashpi/
 ---
 
 ## 🧰 Services Included
-- Chromium / kweb fullscreen kiosk mode
-  - Boots straight into your DakBoard URL in fullscreen. Auto-restarts if it crashes.
+- Chromium Fullscreen Kiosk
+  - Boots straight into your DakBoard URL (or any dashboard) in fullscreen.
+  - Auto-restarts via systemd if it crashes.
 - WiFi Watchdog
-  - Checks connectivity and restarts ```wlan0``` when your network flakes out.
+  - Checks connectivity and restarts ```wlan0``` if your network becomes unreachable.
 - Auto-Updater Script (optional)
   - Updates OS packages and logs results weekly/monthly.
 
@@ -54,7 +55,7 @@ cd ~/pp6-dashpi/scripts
 chmod +x setup.sh
 sudo ./setup.sh
 ```
-> This installs kweb, copies scripts/configs, sets up systemd services, and reboots automatically.
+> This copies scripts/configs, sets up systemd services for Chromium kiosk and WiFi watchdog, and reboots automatically.
 
 
 ---
@@ -81,7 +82,7 @@ sudo crontab -e
 # WiFi-Check (every 15 minutes)
   */15 * * * * bash $HOME/pp6-dashpi/scripts/wifi-check.sh
 ```
-> Runs the WiFi-check script every 15 minutes, which is a good balance for Pi Zero 2W performance.
+> Running every 15 minutes balances reliability and Pi Zero 2W performance.
 
 ---
 
@@ -116,10 +117,9 @@ Set interface name and ping target.
 ---
 
 ## 🚀 Running After Installation
+The kiosk auto-launches at boot via systemd.
 
-The kiosk auto-launches at boot.
-
-- If you want to manually restart the kiosk:
+- Manually restart the kiosk:
 ```bash
 sudo systemctl restart kiosk.service
 ```
@@ -127,6 +127,11 @@ sudo systemctl restart kiosk.service
 - Restart the WiFi watchdog:
 ```bash
 sudo systemctl restart wifi-watchdog.service
+```
+
+- Launch kiosk manually for testing:
+```bash
+bash ~/pp6-dashpi/scripts/kiosk.sh
 ```
 
 ---
@@ -139,26 +144,19 @@ sudo ./uninstall.sh
 ```
 
 - This will remove:
-  - systemd units
-  - installed scripts
+  - systemd services
+  - installed scripts and configs
   - kiosk auto-start
-  - watchdog monitor
-
----
-
-## 🧪 Optional: Cron-Based Refresh or Logs
-
-(You can add your own cronjobs similar to your Forseti repo.)
-See docs/SETUP.md for extended usage.
+  - WiFi watchdog monitor
 
 ---
 
 ## Acknowledgements
 
 This project uses or is inspired by:
-- [kweb](http://www.raspberrypi.org/forums/memberlist.php?mode=viewprofile&u=9343&sid=911aab9d2d1d860bdaf1bc8c30e6e712) – Lightweight webkit browser
-- [DAKboard](https://dakboard.com/site) – Dashboard service displayed on the kiosk
-- [Community kiosk tips](https://forums.raspberrypi.com/viewtopic.php?t=40860) from Raspberry Pi forums
+[Chromium](https://www.raspberrypi.com/software/) – Fullscreen kiosk browser
+[DAKboard](https://dakboard.com/site) – Dashboard service displayed on the kiosk
+[Raspberry Pi Forums](https://forums.raspberrypi.com/viewtopic.php?t=40860) – Community kiosk tips
 
 ---
 

@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# -------------------------------------------------------------------
-# DashPi WiFi Watchdog
-# Pings an external server and restarts wlan0 if connectivity fails
-# -------------------------------------------------------------------
+# DashPi WiFi watchdog script
+# ==============================
 
-PING_TARGET="8.8.8.8"
-IFACE="wlan0"
+CONFIG_FILE="/usr/local/dashpi/config/wifi-watchdog.conf"
 LOGFILE="$HOME/pp6-dashpi/logs/wifi-watchdog.log"
-mkdir -p "$(dirname "$LOGFILE")"
 
-if ! ping -c1 "$PING_TARGET" &>/dev/null; then
-    echo "[$(date)] WiFi down — restarting $IFACE" | tee -a "$LOGFILE"
-    sudo ip link set "$IFACE" down
-    sleep 2
-    sudo ip link set "$IFACE" up
-    sleep 5
-    echo "[$(date)] $IFACE restarted" | tee -a "$LOGFILE"
+mkdir -p "$(dirname "$LOGFILE")"
+source "$CONFIG_FILE"
+
+NOW=$(date '+%Y-%m-%d %H:%M:%S')
+echo "[$NOW] Checking WiFi..." | tee -a "$LOGFILE"
+
+if ! ping -I "$INTERFACE" -c 1 "$PING_TARGET" >/dev/null 2>&1; then
+    echo "[$NOW] WiFi down, restarting $INTERFACE..." | tee -a "$LOGFILE"
+    sudo ifdown "$INTERFACE" && sudo ifup "$INTERFACE"
+else
+    echo "[$NOW] WiFi is up." | tee -a "$LOGFILE"
 fi

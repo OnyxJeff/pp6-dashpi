@@ -4,14 +4,13 @@
 # Updates packages and logs results
 # -------------------------------------------------------------------
 
-LOGFILE="$HOME/pp0-dashpi/logs/dashpi.log"
+LOGFILE="$HOME/pp6-dashpi/logs/dashpi.log"
 mkdir -p "$(dirname "$LOGFILE")"
-NOW=$(date '+%Y-%m-%d %H:%M:%S')
 
-# Start log
+NOW=$(date '+%Y-%m-%d %H:%M:%S')
 echo "[$NOW] Starting DashPi update..." | tee -a "$LOGFILE"
 
-# Update packages
+# Update
 if ! sudo apt-get update 2>&1 | sudo tee -a "$LOGFILE" >/dev/null; then
     echo "[$NOW] apt-get update failed" | tee -a "$LOGFILE"
 fi
@@ -28,7 +27,7 @@ fi
     sudo apt-get upgrade -y
 } 2>&1 | sudo tee -a "$LOGFILE" >/dev/null
 
-# Remove unused packages and clean
+# Cleanup
 {
     echo "[$NOW] Running autoremove..."
     sudo apt-get autoremove -y
@@ -38,5 +37,4 @@ fi
     sudo apt-get autoclean
 } 2>&1 | sudo tee -a "$LOGFILE" >/dev/null
 
-# End log
 echo "[$NOW] DashPi update complete." | tee -a "$LOGFILE"

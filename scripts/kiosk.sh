@@ -1,33 +1,29 @@
 #!/usr/bin/env bash
-# -------------------------------------------------------------------
-# DashPi Kiosk Launcher
-# Loads your dashboard in a lightweight fullscreen browser
-# -------------------------------------------------------------------
+# DashPi kiosk launcher (Chromium)
 
-URL_FILE="/usr/local/dashpi/config/dakboard-url.txt"
-if [ ! -f "$URL_FILE" ]; then
-    echo "[ERROR] URL file not found: $URL_FILE"
+# Path to DakBoard URL config
+DAKBOARD_URL_FILE="/usr/local/dakpi/config/dakboard-url.txt"
+
+if [[ ! -f "$DAKBOARD_URL_FILE" ]]; then
+    echo "[ERROR] DakBoard URL file not found: $DAKBOARD_URL_FILE"
     exit 1
 fi
 
-URL=$(cat "$URL_FILE")
+URL=$(cat "$DAKBOARD_URL_FILE")
 
-# Disable screen blanking / DPMS
-xset -dpms
-xset s off
-xset s noblank
+echo "[+] Launching Chromium kiosk with URL: $URL"
 
-# Start minimal window manager
-matchbox-window-manager &
+# Kill any existing Chromium instances first
+pkill chromium-browser || true
 
-# Loop to auto-restart browser if it crashes
-while true; do
-    /usr/bin/kweb \
-        --fullscreen \
-        --nozoom \
-        --nonavbar \
-        --disablecontextmenu \
-        --private \
-        "$URL"
-    sleep 2
-done
+# Start Chromium in kiosk mode
+/usr/bin/chromium-browser \
+    --noerrdialogs \
+    --kiosk \
+    --incognito "$URL" \
+    --disable-translate \
+    --no-first-run \
+    --window-size=800,600 \
+    --disable-infobars &
+
+echo "[+] Chromium kiosk started."

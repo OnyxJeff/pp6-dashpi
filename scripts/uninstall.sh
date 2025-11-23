@@ -21,9 +21,6 @@ sudo systemctl daemon-reload
 
 echo "[+] Removing DashPi scripts, configs, and logs..."
 sudo rm -rf /usr/local/dashpi
-
-echo "[+] Removing home folder logs and backup logs..."
-rm -rf ~/pp6-dashpi/logs
-rm -rf ~/pp6-dashpi/backup_logs
+rm -rf ~/pp6-dashpi/logs ~/pp6-dashpi/backup_logs
 
 echo "[+] DashPi has been completely removed."
