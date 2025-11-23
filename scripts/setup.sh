@@ -48,9 +48,14 @@ done
 # -------------------------------
 # 2️⃣ Copy scripts and systemd services
 # -------------------------------
+
+# Determine user who invoked the script
+USER_HOME=$(eval echo "~$SUDO_USER")
+REPO_DIR="$USER_HOME/pp6-dashpi"
+
 echo "[+] Copying scripts and systemd service files..."
-sudo cp -r $HOME/pp6-dashpi/scripts/* /usr/local/dashpi/scripts/
-sudo cp -r $HOME/pp6-dashpi/systemd/* /etc/systemd/system/
+sudo cp -r "$REPO_DIR/scripts/"* /usr/local/dashpi/scripts/
+sudo cp -r "$REPO_DIR/systemd/"* /etc/systemd/system/
 
 # -------------------------------
 # 3️⃣ Enable systemd services
