@@ -6,7 +6,7 @@ set -e
 echo "----------------------------------------"
 echo " DashPi Uninstall"
 echo "----------------------------------------"
-read -p "Are you sure you want to uninstall DashPi? (y/N): " confirm
+read -r -p "Are you sure you want to uninstall DashPi? (y/N): " confirm
 
 if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
     echo "[-] Uninstall cancelled."
