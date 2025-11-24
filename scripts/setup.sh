@@ -51,8 +51,8 @@ sudo mkdir -p /usr/local/dashpi/scripts /etc/systemd/system
 sudo cp -r "$REPO_DIR/scripts/"* /usr/local/dashpi/scripts/
 sudo cp -r "$REPO_DIR/systemd/"* /etc/systemd/system/
 
-sudo chown -R $USER:$USER /usr/local/dashpi
-sudo chown -R $USER:$USER "$HOME/pp6-dashpi/logs" "$HOME/pp6-dashpi/backup_logs"
+sudo chown -R "$USER":"$USER" /usr/local/dashpi
+sudo chown -R "$USER":"$USER" "$HOME/pp6-dashpi/logs" "$HOME/pp6-dashpi/backup_logs"
 
 # -------------------------------
 # 3️⃣ Enable systemd services
