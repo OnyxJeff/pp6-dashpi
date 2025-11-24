@@ -6,8 +6,7 @@
 ![GitHub release](https://img.shields.io/github/v/release/OnyxJeff/pp6-dashpi)
 ![Issues](https://img.shields.io/github/issues/OnyxJeff/pp6-dashpi)
 
-**DashPi** turns a Raspberry Pi Zero 2W into a tiny, stubbornly reliable fullscreen dashboard device.  
-It does exactly one job — displaying your dashboard — and refuses to complain about it.
+**DashPi** turns a Raspberry Pi 4b - 4GB into a tiny, stubbornly reliable fullscreen dashboard device. It does exactly one job — displaying your dashboard — and refuses to complain about it.
 
 ---
 

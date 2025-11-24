@@ -1,45 +1,25 @@
 #!/usr/bin/env bash
+# Launch Chromium on actual HDMI for Pi 4B 4GB
 set -e
 
-CONFIG_DIR="/usr/local/dashpi/config"
-URL_FILE="$CONFIG_DIR/dakboard-url.txt"
-REFRESH_FILE="$CONFIG_DIR/refresh-interval"
+CONFIG_FILE="/usr/local/dashpi/config/dakboard-url.txt"
+REFRESH_FILE="/usr/local/dashpi/config/refresh-interval"
 
-URL="$(cat "$URL_FILE")"
-REFRESH_MINUTES="$(cat "$REFRESH_FILE")"
+URL=$(<"$CONFIG_FILE")
+INTERVAL=$(<"$REFRESH_FILE")
 
-LOG_DIR="$HOME/pp6-dashpi/logs"
-mkdir -p "$LOG_DIR"
+echo "[+] Launching Chromium in kiosk mode..."
+# Kill any existing Chromium instances
+pkill -f chromium || true
 
-LOGFILE="$LOG_DIR/kiosk.log"
+# Launch Chromium on real display (:0) full-screen
+export DISPLAY=:0
+chromium --noerrdialogs --disable-infobars --kiosk "$URL" &
+CHROMIUM_PID=$!
 
-echo "[+] Launching Chromium kiosk..." | tee -a "$LOGFILE"
-
-# Kill any leftover Chromium before launching
-pkill chromium || true
-
-chromium \
-  --noerrdialogs \
-  --disable-infobars \
-  --kiosk "$URL" \
-  --incognito \
-  --fast \
-  --fast-start \
-  --disable-translate \
-  --disable-features=TranslateUI \
-  --overscroll-history-navigation=0 \
-  --check-for-update-interval=31536000 \
-  --window-position=0,0 \
-  >> "$LOGFILE" 2>&1 &
-CHROME_PID=$!
-
-echo "[+] Chromium launched with PID $CHROME_PID" | tee -a "$LOGFILE"
-
-# Auto refresh loop
-echo "[*] Starting auto-refresh every $REFRESH_MINUTES minutes..." | tee -a "$LOGFILE"
-
+# Auto-refresh every $INTERVAL minutes
 while true; do
-    sleep $(( REFRESH_MINUTES * 60 ))
-    # Send F5 to Chromium (refresh)
-    xdotool search --onlyvisible --class "chromium" key F5 || true
+    sleep "${INTERVAL}m"
+    echo "[*] Refreshing dashboard..."
+    xdotool search --onlyvisible --class chromium windowactivate key F5
 done

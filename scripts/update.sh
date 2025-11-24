@@ -1,46 +1,23 @@
 #!/usr/bin/env bash
-# DashPi Auto-Updater
-# Updates OS packages and logs results
-
+# DashPi OS Updater – Pi 4B 4GB
 set -e
 
-# -------------------------------
-# Paths
-# -------------------------------
-LOG_DIR="$HOME/pp6-dashpi/logs"
-mkdir -p "$LOG_DIR"
-LOG_FILE="$LOG_DIR/dashpi.log"
+LOGFILE="$HOME/pp6-dashpi/logs/dashpi-update.log"
+mkdir -p "$(dirname "$LOGFILE")"
+
 NOW=$(date '+%Y-%m-%d %H:%M:%S')
+echo "[$NOW] Starting update..." >> "$LOGFILE"
 
-# -------------------------------
-# Logging function
-# -------------------------------
-log() {
-    echo "[$NOW] $*" | tee -a "$LOG_FILE"
-}
+echo "[$NOW] Running apt update..." >> "$LOGFILE"
+sudo apt-get update | tee -a "$LOGFILE"
 
-log "Starting DashPi update..."
+echo "[$NOW] Running apt upgrade..." >> "$LOGFILE"
+sudo apt-get upgrade -y | tee -a "$LOGFILE"
 
-# -------------------------------
-# Update system
-# -------------------------------
-if ! sudo apt-get update | tee -a "$LOG_FILE"; then
-    log "WARNING: apt-get update failed"
-fi
+echo "[$NOW] Running autoremove..." >> "$LOGFILE"
+sudo apt-get autoremove -y | tee -a "$LOGFILE"
 
-if ! sudo apt-get --fix-broken install -y | tee -a "$LOG_FILE"; then
-    log "WARNING: fix-broken install failed"
-fi
+echo "[$NOW] Running autoclean..." >> "$LOGFILE"
+sudo apt-get autoclean -y | tee -a "$LOGFILE"
 
-if ! sudo apt-get upgrade -y | tee -a "$LOG_FILE"; then
-    log "WARNING: apt-get upgrade failed"
-fi
-
-log "Running autoremove..."
-sudo apt-get autoremove -y | tee -a "$LOG_FILE"
-
-log "Cleaning package cache..."
-sudo apt-get clean | tee -a "$LOG_FILE"
-sudo apt-get autoclean | tee -a "$LOG_FILE"
-
-log "Update complete."
+echo "[$NOW] Update complete." >> "$LOGFILE"
