@@ -1,85 +1,45 @@
 #!/usr/bin/env bash
-# DashPi Chromium Kiosk Launcher
-# Launches Chromium in fullscreen kiosk mode with auto-reload
-
 set -e
 
-# -------------------------------
-# Config paths
-# -------------------------------
-SYSTEM_CONFIG_DIR="/usr/local/dashpi/config"
-DAKBOARD_URL_FILE="$SYSTEM_CONFIG_DIR/dakboard-url.txt"
-REFRESH_FILE="$SYSTEM_CONFIG_DIR/refresh-interval"
+CONFIG_DIR="/usr/local/dashpi/config"
+URL_FILE="$CONFIG_DIR/dakboard-url.txt"
+REFRESH_FILE="$CONFIG_DIR/refresh-interval"
 
-# -------------------------------
-# Read config values
-# -------------------------------
-if [[ ! -f "$DAKBOARD_URL_FILE" ]]; then
-    echo "[!] DakBoard URL file not found: $DAKBOARD_URL_FILE"
-    exit 1
-fi
+URL="$(cat "$URL_FILE")"
+REFRESH_MINUTES="$(cat "$REFRESH_FILE")"
 
-if [[ ! -f "$REFRESH_FILE" ]]; then
-    echo "[!] Refresh interval file not found: $REFRESH_FILE"
-    exit 1
-fi
+LOG_DIR="$HOME/pp6-dashpi/logs"
+mkdir -p "$LOG_DIR"
 
-DAKBOARD_URL=$(cat "$DAKBOARD_URL_FILE")
-REFRESH_INTERVAL=$(cat "$REFRESH_FILE")
+LOGFILE="$LOG_DIR/kiosk.log"
 
-# Validate refresh interval is numeric
-if ! [[ "$REFRESH_INTERVAL" =~ ^[0-9]+$ ]]; then
-    echo "[!] Refresh interval invalid: $REFRESH_INTERVAL. Using default 15 minutes."
-    REFRESH_INTERVAL=15
-fi
+echo "[+] Launching Chromium kiosk..." | tee -a "$LOGFILE"
 
-# Convert minutes to seconds
-REFRESH_SECONDS=$(( REFRESH_INTERVAL * 60 ))
+# Kill any leftover Chromium before launching
+pkill chromium || true
 
-# -------------------------------
-# Launch Chromium in kiosk mode
-# -------------------------------
-echo "[+] Launching Chromium kiosk..."
-# Kill any previous Chromium instances
-pkill -f chromium || true
+chromium \
+  --noerrdialogs \
+  --disable-infobars \
+  --kiosk "$URL" \
+  --incognito \
+  --fast \
+  --fast-start \
+  --disable-translate \
+  --disable-features=TranslateUI \
+  --overscroll-history-navigation=0 \
+  --check-for-update-interval=31536000 \
+  --window-position=0,0 \
+  >> "$LOGFILE" 2>&1 &
+CHROME_PID=$!
 
-# Start X server if not running (headless setups may need X)
-if ! pgrep Xorg > /dev/null; then
-    echo "[*] Starting X server..."
-    startx &
-    sleep 5
-fi
+echo "[+] Chromium launched with PID $CHROME_PID" | tee -a "$LOGFILE"
 
-# Launch Chromium
-chromium --kiosk "$DAKBOARD_URL" \
-         --incognito \
-         --noerrdialogs \
-         --disable-translate \
-         --disable-infobars \
-         --disable-session-crashed-bubble &
+# Auto refresh loop
+echo "[*] Starting auto-refresh every $REFRESH_MINUTES minutes..." | tee -a "$LOGFILE"
 
-CHROMIUM_PID=$!
-echo "[+] Chromium launched with PID $CHROMIUM_PID"
-
-# -------------------------------
-# Optional: auto-reload
-# -------------------------------
-echo "[*] Starting auto-refresh every $REFRESH_INTERVAL minutes..."
 while true; do
-    sleep "$REFRESH_SECONDS"
-    echo "[*] Refreshing Chromium..."
-    # Reload via xdotool if installed, otherwise restart Chromium
-    if command -v xdotool > /dev/null; then
-        xdotool search --onlyvisible --class "Chromium" key F5
-    else
-        echo "[*] xdotool not found — restarting Chromium"
-        pkill -f chromium || true
-        chromium --kiosk "$DAKBOARD_URL" \
-                 --incognito \
-                 --noerrdialogs \
-                 --disable-translate \
-                 --disable-infobars \
-                 --disable-session-crashed-bubble &
-        CHROMIUM_PID=$!
-    fi
+    sleep $(( REFRESH_MINUTES * 60 ))
+    # Send F5 to Chromium (refresh)
+    xdotool search --onlyvisible --class "chromium" key F5 || true
 done

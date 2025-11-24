@@ -91,7 +91,7 @@ sudo crontab -e
 
 - Edit:
 ```bash
-/usr/local/dashpi/config/dakboard-url.txt
+sudo nano /usr/local/dashpi/config/dakboard-url.txt
 ```
 
 Paste in your private DakBoard share URL.
@@ -100,7 +100,7 @@ Paste in your private DakBoard share URL.
 
 - Edit:
 ```bash
-/usr/local/dashpi/config/refresh-interval
+sudo nano /usr/local/dashpi/config/refresh-interval
 ```
 
 Specify minutes (e.g., 15).
@@ -109,7 +109,7 @@ Specify minutes (e.g., 15).
 
 - Edit:
 ```bash
-/usr/local/dashpi/config/wifi-watchdog.conf
+sudo nano /usr/local/dashpi/config/wifi-watchdog.conf
 ```
 
 Set interface name and ping target.
