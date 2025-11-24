@@ -9,6 +9,7 @@ set -euo pipefail
 CONFIG_FILE="/usr/local/dashpi/config/wifi-watchdog.conf"
 
 # Load configuration
+# shellcheck source=/dev/null
 source "$CONFIG_FILE"
 
 # Logs
