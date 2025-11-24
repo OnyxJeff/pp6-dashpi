@@ -15,6 +15,7 @@ pkill -f chromium || true
 # Launch Chromium on real display (:0) full-screen
 export DISPLAY=:0
 chromium --noerrdialogs --disable-infobars --kiosk "$URL" &
+# shellcheck disable=SC2034
 CHROMIUM_PID=$!
 
 # Auto-refresh every $INTERVAL minutes
