@@ -55,13 +55,44 @@ sudo chown -R "$USER":"$USER" /usr/local/dashpi
 sudo chown -R "$USER":"$USER" "$HOME/pp6-dashpi/logs" "$HOME/pp6-dashpi/backup_logs"
 
 # -------------------------------
+# WiFi Watchdog Installation
+# -------------------------------
+echo "[+] Installing WiFi watchdog..."
+
+# Install script
+sudo install -m 755 "$REPO_DIR/scripts/wifi-check.sh" /usr/local/bin/wifi-check.sh
+
+# Create systemd service
+sudo tee /etc/systemd/system/wifi-check.service >/dev/null <<'EOF'
+[Unit]
+Description=WiFi Auto-Recovery Script
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/wifi-check.sh
+EOF
+
+# Create systemd timer – runs every 5 minutes
+sudo tee /etc/systemd/system/wifi-check.timer >/dev/null <<'EOF'
+[Unit]
+Description=Run WiFi Check Every 5 Minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+Unit=wifi-check.service
+
+[Install]
+WantedBy=timers.target
+EOF
+
+# -------------------------------
 # 3️⃣ Enable systemd services
 # -------------------------------
 sudo systemctl daemon-reload
 sudo systemctl enable kiosk.service
-sudo systemctl enable wifi-watchdog.service
+sudo systemctl enable --now wifi-check.timer
 sudo systemctl start kiosk.service
-sudo systemctl start wifi-watchdog.service
 
 # -------------------------------
 # 4️⃣ Final message

@@ -1,34 +1,24 @@
 #!/usr/bin/env bash
-# DashPi WiFi Watchdog
-# Checks connectivity and restarts wlan0 if unreachable
-# Fully ShellCheck-friendly
-
 set -euo pipefail
 
-# shellcheck source=/dev/null
-CONFIG_FILE="/usr/local/dashpi/config/wifi-watchdog.conf"
+LOGFILE="/var/log/wifi-check.log"
+PING_HOST="8.8.8.8"
 
-# Load configuration
-# shellcheck source=/dev/null
-source "$CONFIG_FILE"
+{
+    echo "$(date '+%F %T') Checking WiFi..."
 
-# Logs
-LOG_DIR="$HOME/pp6-dashpi/logs"
-mkdir -p "$LOG_DIR"
-LOG_FILE="$LOG_DIR/wifi-watchdog.log"
+    if ! ping -c1 -W2 "$PING_HOST" >/dev/null 2>&1; then
+        echo "$(date '+%F %T') WiFi down — restarting wlan0..."
+        ip link set wlan0 down || true
+        sleep 2
+        ip link set wlan0 up || true
+        sleep 5
 
-NOW=$(date '+%Y-%m-%d %H:%M:%S')
-
-echo "[$NOW] Checking WiFi connectivity..." | tee -a "$LOG_FILE"
-
-# Test connectivity
-if ! ping -c 1 "$PING_TARGET" &> /dev/null; then
-    echo "[$NOW] Ping failed. Restarting $INTERFACE..." | tee -a "$LOG_FILE"
-    if sudo ip link set "$INTERFACE" down && sudo ip link set "$INTERFACE" up; then
-        echo "[$NOW] $INTERFACE restarted successfully." | tee -a "$LOG_FILE"
-    else
-        echo "[$NOW] Failed to restart $INTERFACE." | tee -a "$LOG_FILE"
+        if ! ping -c1 -W2 "$PING_HOST" >/dev/null 2>&1; then
+            echo "$(date '+%F %T') Still down — rebooting Pi."
+            /sbin/reboot
+        else
+            echo "$(date '+%F %T') WiFi restored."
+        fi
     fi
-else
-    echo "[$NOW] WiFi is up." | tee -a "$LOG_FILE"
-fi
+} >> "$LOGFILE" 2>&1
