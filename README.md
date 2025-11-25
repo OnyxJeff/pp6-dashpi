@@ -114,6 +114,11 @@ sudo ./setup.sh
 ```
 > This runs scripts/configs, sets up systemd services for WiFi watchdog, and starts the kiosk automatically.
 
+- Reboot
+```bash
+sudo shutdown -r now
+```
+> This ensures that it autostarts the kiosk
 
 ## 🧹 Uninstalling
 ```bash
