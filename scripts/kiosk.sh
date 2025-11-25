@@ -36,6 +36,7 @@ launch_chromium() {
     local url="$1"
     echo "[+] Launching Chromium with URL: $url"
     chromium --noerrdialogs --disable-infobars --kiosk "$url" &
+    # shellcheck disable=SC2034
     CHROMIUM_PID=$!
 }
 
