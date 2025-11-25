@@ -64,9 +64,7 @@ sudo chown -R "$USER_NAME":"$USER_NAME" /usr/local/dashpi
 # 5️⃣ Enable systemd services
 # -------------------------------
 sudo systemctl daemon-reload
-sudo systemctl enable kiosk.service
 sudo systemctl enable wifi-watchdog.service
-sudo systemctl start kiosk.service
 sudo systemctl start wifi-watchdog.service
 
 # -------------------------------
