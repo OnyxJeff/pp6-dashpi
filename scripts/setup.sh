@@ -86,39 +86,36 @@ EOL
 
 echo "[+] Created autostart entry for kiosk: $KIOSK_DESKTOP"
 
-# -------------------------------
-# 7️⃣ Reset GNOME keyring to blank
-# -------------------------------
+# ---------------------------------------------------------
+# 🗝️ Reset GNOME Keyring properly (make login keyring blank)
+# ---------------------------------------------------------
+echo "[*] Resetting GNOME Keyring to a passwordless login keyring..."
+
 KEYRING_DIR="$USER_HOME/.local/share/keyrings"
-LOGIN_KEYRING="$KEYRING_DIR/login.keyring"
-
 mkdir -p "$KEYRING_DIR"
-if [[ -f "$LOGIN_KEYRING" ]]; then
-    cp "$LOGIN_KEYRING" "$LOGIN_KEYRING.bak_$(date +%F_%T)"
-    echo "[*] Backup of old keyring saved as $LOGIN_KEYRING.bak_$(date +%F_%T)"
-    rm -f "$LOGIN_KEYRING"
-fi
 
-touch "$LOGIN_KEYRING"
-chmod 600 "$LOGIN_KEYRING"
-echo "[+] Default keyring reset to blank — no password prompt at login."
+# Kill any existing keyring daemons so they don’t fight us
+pkill -9 gnome-keyring-daemon 2>/dev/null || true
 
-# -------------------------------
-# 8️⃣ Set default HDMI resolution to 1920x1080
-# -------------------------------
-CONFIG_TXT="/boot/config.txt"
-if ! grep -q "hdmi_group=1" "$CONFIG_TXT"; then
-    echo "[+] Setting default HDMI resolution to 1920x1080..."
-    echo "" | sudo tee -a "$CONFIG_TXT" >/dev/null
-    echo "# DashPi default 1080p HDMI" | sudo tee -a "$CONFIG_TXT" >/dev/null
-    echo "hdmi_group=1" | sudo tee -a "$CONFIG_TXT" >/dev/null
-    echo "hdmi_mode=16" | sudo tee -a "$CONFIG_TXT" >/dev/null
-else
-    echo "[*] HDMI resolution settings already present — skipping."
-fi
+# Remove old keyring databases that trigger prompts
+rm -f "$KEYRING_DIR"/*.keyring
+rm -f "$KEYRING_DIR"/*.kdbx
+
+# Create a new empty passwordless keyring named "login"
+printf "" | sudo -u "$USER_NAME" secret-tool store --label="login" type login 2>/dev/null || true
+
+# Make "login" the default keyring
+cat > "$KEYRING_DIR/default" <<EOF
+[Default]
+Default=login
+EOF
+
+chmod 600 "$KEYRING_DIR/default"
+
+echo "[+] GNOME keyring successfully reset to blank. No more password prompts."
 
 # -------------------------------
-# 9️⃣ Final message
+# 7️⃣ Final message
 # -------------------------------
 echo "[+] Setup complete!"
 echo "    - Chromium kiosk will launch at boot using URL from:"
@@ -126,3 +123,5 @@ echo "      $CONFIG_DIR/dakboard-url.txt"
 echo "    - WiFi watchdog service running by systemd."
 echo "    - Logs are stored in $LOG_DIR"
 echo "    - Autostart configured for Desktop session."
+echo "    - rebooting device to autostart kiosk-mode."
+sudo shutdown -r now

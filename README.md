@@ -106,19 +106,15 @@ Set interface name and ping target.
 
 ### ➤ Installation
 
-- Run setup (installs Chromium-lite, kiosk service, WiFi watchdog)
+- On the desktop (using RPi connect or VNC) manually change the resolution to 1080p (or your displays native resolution)
+
+- Run setup (installs Chromium, kiosk desktop service, WiFi watchdog)
 ```bash
 cd ~/pp6-dashpi/scripts
 chmod +x setup.sh
 sudo ./setup.sh
 ```
-> This runs scripts/configs, sets up systemd services for WiFi watchdog, and starts the kiosk automatically.
-
-- Reboot
-```bash
-sudo shutdown -r now
-```
-> This ensures that it autostarts the kiosk
+> This runs scripts/configs, sets up systemd services for WiFi watchdog, reboots the device, and starts the kiosk automatically.
 
 ## 🧹 Uninstalling
 ```bash
