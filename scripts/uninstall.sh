@@ -1,35 +1,58 @@
 #!/usr/bin/env bash
-# DashPi Uninstall Script – removes kiosk and watchdog
+# DashPi Uninstall Script – Desktop OS
 set -euo pipefail
 
-
-USER_HOME=$(eval echo "~$SUDO_USER")
-# shellcheck disable=SC2034
-USER_NAME=${SUDO_USER:-$USER}
-
+echo "[!] This will remove DashPi scripts, configs, autostart, and cronjobs."
 read -r -p "Are you sure you want to uninstall DashPi? (y/N): " confirm
 if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
-    echo "[*] Aborted."
+    echo "[*] Uninstall canceled."
     exit 0
 fi
 
-echo "[+] Stopping services..."
-sudo systemctl stop kiosk.service || true
-sudo systemctl stop wifi-watchdog.service || true
+# -------------------------------
+# Remove scripts
+# -------------------------------
+HOME_DIR="$HOME/pp6-dashpi"
+if [[ -d "$HOME_DIR/scripts" ]]; then
+    rm -rf "$HOME_DIR/scripts"
+    echo "[+] Removed scripts folder."
+fi
 
-echo "[+] Disabling services..."
-sudo systemctl disable kiosk.service || true
-sudo systemctl disable wifi-watchdog.service || true
+# -------------------------------
+# Remove configs
+# -------------------------------
+if [[ -d "$HOME_DIR/config" ]]; then
+    rm -rf "$HOME_DIR/config"
+    echo "[+] Removed config folder."
+fi
 
-echo "[+] Removing systemd units..."
-sudo rm -f /etc/systemd/system/kiosk.service
-sudo rm -f /etc/systemd/system/wifi-watchdog.service
-sudo systemctl daemon-reload
+# -------------------------------
+# Remove logs
+# -------------------------------
+if [[ -d "$HOME_DIR/logs" ]]; then
+    rm -rf "$HOME_DIR/logs"
+    echo "[+] Removed logs folder."
+fi
 
-echo "[+] Removing system-wide files..."
-sudo rm -rf /usr/local/dashpi
+if [[ -d "$HOME_DIR/backup_logs" ]]; then
+    rm -rf "$HOME_DIR/backup_logs"
+    echo "[+] Removed backup_logs folder."
+fi
 
-echo "[+] Removing user config files..."
-rm -rf "$USER_HOME/pp6-dashpi"
+# -------------------------------
+# Remove autostart
+# -------------------------------
+AUTOSTART_DIR="$HOME/.config/autostart"
+KIOSK_DESKTOP_FILE="$AUTOSTART_DIR/pp6-dashpi-kiosk.desktop"
+if [[ -f "$KIOSK_DESKTOP_FILE" ]]; then
+    rm -f "$KIOSK_DESKTOP_FILE"
+    echo "[+] Removed autostart entry."
+fi
 
-echo "[+] DashPi uninstalled."
+# -------------------------------
+# Remove cronjob for WiFi watchdog
+# -------------------------------
+(crontab -l 2>/dev/null || true) | grep -v 'wifi-check.sh' | crontab -
+echo "[+] Removed WiFi watchdog cronjob."
+
+echo "[+] DashPi has been uninstalled from Desktop OS."

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# DashPi Setup Script – Pi 4B 4GB, Desktop OS, Chromium Kiosk, WiFi Watchdog
+# DashPi Desktop OS Setup – Pi 4B 4GB, Chromium Kiosk, WiFi Watchdog, Auto-Update
 set -euo pipefail
 
 echo "[+] Updating system packages..."
@@ -11,8 +11,8 @@ sudo apt install -y chromium x11-xserver-utils xdotool unclutter
 # -------------------------------
 # Config paths
 # -------------------------------
-DESKTOP_USER=${SUDO_USER:-$USER}
-HOME_DIR=$(eval echo "~$DESKTOP_USER")
+USER_NAME=${SUDO_USER:-$USER}
+HOME_DIR=$(eval echo "~$USER_NAME")
 HOME_CONFIG_DIR="$HOME_DIR/pp6-dashpi/config"
 SYSTEM_CONFIG_DIR="/usr/local/dashpi/config"
 mkdir -p "$HOME_CONFIG_DIR" "$HOME_DIR/pp6-dashpi/logs" "$HOME_DIR/pp6-dashpi/backup_logs"
@@ -29,43 +29,62 @@ for file in "${!CONFIG_FILES[@]}"; do
     HOME_FILE="$HOME_CONFIG_DIR/$file"
     SYSTEM_FILE="$SYSTEM_CONFIG_DIR/$file"
 
+    # Create default in home if missing
     if [[ ! -f "$HOME_FILE" ]]; then
         echo -e "${CONFIG_FILES[$file]}" > "$HOME_FILE"
         echo "[+] Created default $file at $HOME_FILE"
     fi
 
+    # Copy to system-wide config if missing or older
     if [[ ! -f "$SYSTEM_FILE" ]] || [[ "$HOME_FILE" -nt "$SYSTEM_FILE" ]]; then
         sudo cp "$HOME_FILE" "$SYSTEM_FILE"
-        echo "[+] Copied $file to system-wide config ($SYSTEM_FILE)"
+        echo "[+] Updated system config: $SYSTEM_FILE"
     else
         echo "[*] Skipped $file — system-wide config is newer or identical"
     fi
 done
 
 # -------------------------------
-# Copy scripts and systemd service files
+# Copy scripts
 # -------------------------------
 REPO_DIR="$HOME_DIR/pp6-dashpi"
-sudo mkdir -p /usr/local/dashpi/scripts /etc/systemd/system
+sudo mkdir -p /usr/local/dashpi/scripts
 sudo cp -r "$REPO_DIR/scripts/"* /usr/local/dashpi/scripts/
-sudo cp -r "$REPO_DIR/systemd/"* /etc/systemd/system/
-
-sudo chown -R "$DESKTOP_USER":"$DESKTOP_USER" /usr/local/dashpi
-sudo chown -R "$DESKTOP_USER":"$DESKTOP_USER" "$HOME_DIR/pp6-dashpi/logs" "$HOME_DIR/pp6-dashpi/backup_logs"
+sudo chown -R "$USER_NAME":"$USER_NAME" /usr/local/dashpi
+sudo chown -R "$USER_NAME":"$USER_NAME" "$HOME_DIR/pp6-dashpi/logs" "$HOME_DIR/pp6-dashpi/backup_logs"
 
 # -------------------------------
-# Enable systemd services for desktop session
+# Setup autostart for Chromium kiosk
 # -------------------------------
-echo "[+] Enabling systemd services..."
+AUTOSTART_DIR="$HOME_DIR/.config/autostart"
+mkdir -p "$AUTOSTART_DIR"
+DESKTOP_FILE="$AUTOSTART_DIR/pp6-dashpi-kiosk.desktop"
+
+cat > "$DESKTOP_FILE" <<EOF
+[Desktop Entry]
+Type=Application
+Name=DashPi Kiosk
+Exec=$HOME_DIR/pp6-dashpi/scripts/kiosk.sh
+StartupNotify=false
+Terminal=false
+EOF
+
+chmod +x "$DESKTOP_FILE"
+echo "[+] Created autostart entry: $DESKTOP_FILE"
+
+# -------------------------------
+# Enable WiFi watchdog via systemd
+# -------------------------------
+sudo cp "$REPO_DIR/systemd/wifi-watchdog.service" /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable wifi-watchdog.service
 sudo systemctl start wifi-watchdog.service
 
-# Kiosk will run via kiosk.service after graphical.target (Desktop)
-sudo systemctl enable kiosk.service
-sudo systemctl start kiosk.service
-
+# -------------------------------
+# Final message
+# -------------------------------
 echo "[+] Setup complete!"
-echo "    - Chromium kiosk will launch on HDMI after Desktop OS starts"
-echo "    - WiFi watchdog running every ${CONFIG_FILES["refresh-interval"]} minutes"
-echo "    - Logs stored in $HOME_DIR/pp6-dashpi/logs"
+echo "    - Chromium kiosk will auto-launch on desktop login."
+echo "    - System-wide configs are in $SYSTEM_CONFIG_DIR"
+echo "    - Logs are in $HOME_DIR/pp6-dashpi/logs"
+echo "    - WiFi watchdog running via systemd service."
