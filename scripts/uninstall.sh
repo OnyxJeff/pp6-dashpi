@@ -1,40 +1,45 @@
 #!/usr/bin/env bash
 # DashPi Uninstall Script
-set -e
+set -euo pipefail
 
-# Determine real non-root user + home
-REAL_USER="${SUDO_USER:-$USER}"
-REAL_HOME="$(getent passwd "$REAL_USER" | cut -d: -f6)"
+# -------------------------------
+# Determine invoking user's home
+# -------------------------------
+USER_HOME=$(eval echo "~$SUDO_USER")
+if [[ -z "$USER_HOME" ]]; then
+    USER_HOME="$HOME"
+fi
 
-DASHSYS_DIR="/usr/local/dashpi"
-SYSTEMD_DIR="/etc/systemd/system"
+HOME_CONFIG_DIR="$USER_HOME/pp6-dashpi/config"
+SYSTEM_CONFIG_DIR="/usr/local/dashpi/config"
+SCRIPT_DIR="/usr/local/dashpi/scripts"
 
-echo "[!] This will remove DashPi system files and services."
-echo "    Your repo at $REAL_HOME/pp6-dashpi will NOT be touched."
+# -------------------------------
+# Confirm uninstall
+# -------------------------------
 read -r -p "Are you sure you want to uninstall DashPi? (y/N): " confirm
-
 if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
-    echo "[*] Uninstall cancelled."
+    echo "[*] Aborted."
     exit 0
 fi
 
-echo "[+] Stopping services..."
-sudo systemctl stop kiosk.service 2>/dev/null || true
-sudo systemctl stop wifi-watchdog.service 2>/dev/null || true
-
-echo "[+] Disabling services..."
-sudo systemctl disable kiosk.service 2>/dev/null || true
-sudo systemctl disable wifi-watchdog.service 2>/dev/null || true
+echo "[+] Stopping systemd services..."
+sudo systemctl stop kiosk.service || true
+sudo systemctl stop wifi-watchdog.service || true
+sudo systemctl disable kiosk.service || true
+sudo systemctl disable wifi-watchdog.service || true
 
 echo "[+] Removing systemd service files..."
-sudo rm -f "$SYSTEMD_DIR/kiosk.service"
-sudo rm -f "$SYSTEMD_DIR/wifi-watchdog.service"
-
-echo "[+] Removing DashPi system directory: $DASHSYS_DIR"
-sudo rm -rf "$DASHSYS_DIR"
-
-echo "[+] Reloading systemd..."
+sudo rm -f /etc/systemd/system/kiosk.service
+sudo rm -f /etc/systemd/system/wifi-watchdog.service
 sudo systemctl daemon-reload
 
-echo "[+] DashPi uninstalled."
-echo "    Your repository and logs in $REAL_HOME/pp6-dashpi remain untouched."
+echo "[+] Removing scripts and system-wide configs..."
+sudo rm -rf "$SCRIPT_DIR" "$SYSTEM_CONFIG_DIR"
+
+echo "[+] Removing user config files..."
+rm -rf "$HOME_CONFIG_DIR"
+
+echo "[+] DashPi uninstall complete!"
+echo "    - User logs remain in $USER_HOME/pp6-dashpi/logs"
+echo "    - Backup logs remain in $USER_HOME/pp6-dashpi/backup_logs"
