@@ -1,0 +1,12 @@
+[Unit]
+Description=DashPi WiFi Watchdog
+After=network.target
+
+[Service]
+ExecStart=/home/dashpi/pp6-dashpi/scripts/wifi-check.sh
+Restart=always
+RestartSec=60
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

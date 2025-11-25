@@ -1,20 +1,11 @@
 #!/usr/bin/env bash
-# DashPi Full Setup Script – Pi 4B 4GB, Chromium Kiosk, WiFi Watchdog, Auto-Update
+# DashPi Desktop Setup Script – Pi 4B 4GB, Chromium Kiosk, WiFi Watchdog
 set -euo pipefail
 
-# -------------------------------
-# Determine home of invoking user
-# -------------------------------
+# Determine real user (avoid /root issues)
 USER_HOME=$(eval echo "~$SUDO_USER")
-if [[ -z "$USER_HOME" ]]; then
-    USER_HOME="$HOME"
-fi
+USER_NAME=${SUDO_USER:-$USER}
 
-echo "[+] Using user home: $USER_HOME"
-
-# -------------------------------
-# Update & install required packages
-# -------------------------------
 echo "[+] Updating system packages..."
 sudo apt update && sudo apt upgrade -y
 
@@ -26,18 +17,12 @@ sudo apt install -y chromium x11-xserver-utils xdotool unclutter
 # -------------------------------
 HOME_CONFIG_DIR="$USER_HOME/pp6-dashpi/config"
 SYSTEM_CONFIG_DIR="/usr/local/dashpi/config"
-LOG_DIR="$USER_HOME/pp6-dashpi/logs"
-BACKUP_DIR="$USER_HOME/pp6-dashpi/backup_logs"
-
-mkdir -p "$HOME_CONFIG_DIR" "$LOG_DIR" "$BACKUP_DIR"
+mkdir -p "$HOME_CONFIG_DIR" "$USER_HOME/pp6-dashpi/logs" "$USER_HOME/pp6-dashpi/backup_logs"
 sudo mkdir -p "$SYSTEM_CONFIG_DIR"
 
-# -------------------------------
-# Default config contents
-# -------------------------------
 declare -A CONFIG_FILES=(
     ["dakboard-url.txt"]="https://dakboard.com/screen/your-dakboard-share-url"
-    ["wifi-watchdog.conf"]="INTERFACE=\"wlan0\"\nPING_HOST=\"8.8.8.8\""
+    ["wifi-watchdog.conf"]="INTERFACE=\"wlan0\"\nPING_TARGET=\"8.8.8.8\""
     ["refresh-interval"]="15"
 )
 
@@ -60,35 +45,29 @@ for file in "${!CONFIG_FILES[@]}"; do
 done
 
 # -------------------------------
-# Copy scripts and systemd service files
+# Copy scripts and systemd services
 # -------------------------------
 REPO_DIR="$USER_HOME/pp6-dashpi"
-
 sudo mkdir -p /usr/local/dashpi/scripts /etc/systemd/system
 sudo cp -r "$REPO_DIR/scripts/"* /usr/local/dashpi/scripts/
 sudo cp -r "$REPO_DIR/systemd/"* /etc/systemd/system/
 
-# -------------------------------
-# Fix permissions
-# -------------------------------
-sudo chown -R "$SUDO_USER":"$SUDO_USER" /usr/local/dashpi
-sudo chown -R "$SUDO_USER":"$SUDO_USER" "$LOG_DIR" "$BACKUP_DIR"
+# Fix ownership
+sudo chown -R "$USER_NAME":"$USER_NAME" /usr/local/dashpi
+sudo chown -R "$USER_NAME":"$USER_NAME" "$USER_HOME/pp6-dashpi/logs" "$USER_HOME/pp6-dashpi/backup_logs"
 
 # -------------------------------
 # Enable systemd services
 # -------------------------------
+echo "[+] Enabling systemd services..."
 sudo systemctl daemon-reload
 sudo systemctl enable kiosk.service
 sudo systemctl enable wifi-watchdog.service
 sudo systemctl start kiosk.service
 sudo systemctl start wifi-watchdog.service
 
-# -------------------------------
-# Final message
-# -------------------------------
 echo "[+] Setup complete!"
 echo "    - Chromium kiosk will launch at boot using:"
 echo "      $SYSTEM_CONFIG_DIR/dakboard-url.txt"
-echo "    - WiFi watchdog service running every ${CONFIG_FILES["refresh-interval"]} minutes."
-echo "    - Logs are stored in $LOG_DIR"
-echo "    - Backup logs are stored in $BACKUP_DIR"
+echo "    - WiFi watchdog running every ${CONFIG_FILES["refresh-interval"]} minutes"
+echo "    - Logs are stored in $USER_HOME/pp6-dashpi/logs"

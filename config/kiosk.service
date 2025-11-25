@@ -1,0 +1,16 @@
+[Unit]
+Description=DashPi Kiosk
+After=graphical.target
+Wants=graphical.target
+
+[Service]
+User=dashpi
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/dashpi/.Xauthority
+ExecStart=/home/dashpi/pp6-dashpi/scripts/kiosk.sh
+Restart=always
+RestartSec=10
+Type=simple
+
+[Install]
+WantedBy=graphical.target
