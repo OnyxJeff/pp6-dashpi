@@ -2,7 +2,9 @@
 # DashPi Uninstall Script – removes kiosk and watchdog
 set -euo pipefail
 
+
 USER_HOME=$(eval echo "~$SUDO_USER")
+# shellcheck disable=SC2034
 USER_NAME=${SUDO_USER:-$USER}
 
 read -r -p "Are you sure you want to uninstall DashPi? (y/N): " confirm
