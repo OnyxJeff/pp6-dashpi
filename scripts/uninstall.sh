@@ -1,58 +1,39 @@
 #!/usr/bin/env bash
-# DashPi Uninstall Script – Desktop OS
+# DashPi Desktop Uninstall Script
 set -euo pipefail
 
-echo "[!] This will remove DashPi scripts, configs, autostart, and cronjobs."
-read -r -p "Are you sure you want to uninstall DashPi? (y/N): " confirm
-if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
-    echo "[*] Uninstall canceled."
-    exit 0
+USER_NAME=${SUDO_USER:-$USER}
+USER_HOME=$(eval echo "~$USER_NAME")
+REPO_DIR="$USER_HOME/pp6-dashpi"
+AUTOSTART_DIR="$USER_HOME/.config/autostart"
+
+echo "[!] Stopping running services/scripts..."
+# Kill any running kiosk or wifi-check processes
+pkill -f "$REPO_DIR/scripts/kiosk.sh" || true
+pkill -f "$REPO_DIR/scripts/wifi-check.sh" || true
+
+# Remove autostart entry
+KIOSK_DESKTOP="$AUTOSTART_DIR/dashpi-kiosk.desktop"
+if [[ -f "$KIOSK_DESKTOP" ]]; then
+    rm "$KIOSK_DESKTOP"
+    echo "[+] Removed autostart entry: $KIOSK_DESKTOP"
+else
+    echo "[*] Autostart entry not found, skipping"
 fi
 
-# -------------------------------
-# Remove scripts
-# -------------------------------
-HOME_DIR="$HOME/pp6-dashpi"
-if [[ -d "$HOME_DIR/scripts" ]]; then
-    rm -rf "$HOME_DIR/scripts"
-    echo "[+] Removed scripts folder."
+# Optionally remove logs
+LOGS_DIR="$REPO_DIR/logs"
+BACKUP_DIR="$REPO_DIR/backup_logs"
+
+if [[ -d "$LOGS_DIR" ]]; then
+    rm -rf "$LOGS_DIR"
+    echo "[+] Removed logs directory: $LOGS_DIR"
 fi
 
-# -------------------------------
-# Remove configs
-# -------------------------------
-if [[ -d "$HOME_DIR/config" ]]; then
-    rm -rf "$HOME_DIR/config"
-    echo "[+] Removed config folder."
+if [[ -d "$BACKUP_DIR" ]]; then
+    rm -rf "$BACKUP_DIR"
+    echo "[+] Removed backup logs directory: $BACKUP_DIR"
 fi
 
-# -------------------------------
-# Remove logs
-# -------------------------------
-if [[ -d "$HOME_DIR/logs" ]]; then
-    rm -rf "$HOME_DIR/logs"
-    echo "[+] Removed logs folder."
-fi
-
-if [[ -d "$HOME_DIR/backup_logs" ]]; then
-    rm -rf "$HOME_DIR/backup_logs"
-    echo "[+] Removed backup_logs folder."
-fi
-
-# -------------------------------
-# Remove autostart
-# -------------------------------
-AUTOSTART_DIR="$HOME/.config/autostart"
-KIOSK_DESKTOP_FILE="$AUTOSTART_DIR/pp6-dashpi-kiosk.desktop"
-if [[ -f "$KIOSK_DESKTOP_FILE" ]]; then
-    rm -f "$KIOSK_DESKTOP_FILE"
-    echo "[+] Removed autostart entry."
-fi
-
-# -------------------------------
-# Remove cronjob for WiFi watchdog
-# -------------------------------
-(crontab -l 2>/dev/null || true) | grep -v 'wifi-check.sh' | crontab -
-echo "[+] Removed WiFi watchdog cronjob."
-
-echo "[+] DashPi has been uninstalled from Desktop OS."
+echo "[+] Uninstall complete!"
+echo "    Repository files in $REPO_DIR remain intact."

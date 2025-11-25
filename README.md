@@ -48,15 +48,6 @@ cd
 git clone https://github.com/OnyxJeff/pp6-dashpi.git
 ```
 
-- Run setup (installs Chromium-lite, kiosk service, WiFi watchdog)
-```bash
-cd ~/pp6-dashpi/scripts
-chmod +x setup.sh
-sudo ./setup.sh
-```
-> This copies scripts/configs, sets up systemd services for Chromium kiosk and WiFi watchdog, and reboots automatically.
-
-
 ---
 
 ## 🚦 Optional: Auto Updates & Log Rotation
@@ -90,16 +81,16 @@ sudo crontab -e
 
 - Edit:
 ```bash
-sudo nano /usr/local/dashpi/config/dakboard-url.txt
+nano $HOME/pp6-dashpi/config/dakboard-url.txt.example
 ```
 
-Paste in your private DakBoard share URL.
+Paste in your private DakBoard share URL and save as ```dakboard-url.txt```
 
 ### ➤ Refresh Interval
 
 - Edit:
 ```bash
-sudo nano /usr/local/dashpi/config/refresh-interval
+nano $HOME/pp6-dashpi/config/refresh-interval
 ```
 
 Specify minutes (e.g., 15).
@@ -108,32 +99,21 @@ Specify minutes (e.g., 15).
 
 - Edit:
 ```bash
-sudo nano /usr/local/dashpi/config/wifi-watchdog.conf
+nano $HOME/pp6-dashpi/config/wifi-watchdog.conf
 ```
 
 Set interface name and ping target.
 
----
+### ➤ Installation
 
-## 🚀 Running After Installation
-The kiosk auto-launches at boot via systemd.
-
-- Manually restart the kiosk:
+- Run setup (installs Chromium-lite, kiosk service, WiFi watchdog)
 ```bash
-sudo systemctl restart kiosk.service
+cd ~/pp6-dashpi/scripts
+chmod +x setup.sh
+sudo ./setup.sh
 ```
+> This runs scripts/configs, sets up systemd services for WiFi watchdog, and starts the kiosk automatically.
 
-- Restart the WiFi watchdog:
-```bash
-sudo systemctl restart wifi-watchdog.service
-```
-
-- Launch kiosk manually for testing:
-```bash
-bash ~/pp6-dashpi/scripts/kiosk.sh
-```
-
----
 
 ## 🧹 Uninstalling
 ```bash
