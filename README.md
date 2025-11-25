@@ -153,9 +153,9 @@ sudo ./uninstall.sh
 ## Acknowledgements
 
 This project uses or is inspired by:
-[Chromium](https://www.raspberrypi.com/software/) – Fullscreen kiosk browser
-[DAKboard](https://dakboard.com/site) – Dashboard service displayed on the kiosk
-[Raspberry Pi Forums](https://forums.raspberrypi.com/viewtopic.php?t=40860) – Community kiosk tips
+- [Chromium](https://www.raspberrypi.com/software/) – Fullscreen kiosk browser
+- [DAKboard](https://dakboard.com/site) – Dashboard service displayed on the kiosk
+- [Raspberry Pi Forums](https://forums.raspberrypi.com/viewtopic.php?t=40860) – Community kiosk tips
 
 ---
 
