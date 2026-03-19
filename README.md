@@ -1,7 +1,7 @@
 # pp6-dashpi
 
 ![Build Status](https://github.com/OnyxJeff/pp6-dashpi/actions/workflows/build.yml/badge.svg)
-![Maintenance](https://img.shields.io/maintenance/yes/2025.svg)
+![Maintenance](https://img.shields.io/maintenance/yes/2026.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![GitHub release](https://img.shields.io/github/v/release/OnyxJeff/pp6-dashpi)
 ![Issues](https://img.shields.io/github/issues/OnyxJeff/pp6-dashpi)

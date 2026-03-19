@@ -22,7 +22,7 @@ mkdir -p "$CONFIG_DIR" "$LOG_DIR" "$BACKUP_LOG_DIR"
 # 1️⃣ Update and install packages
 # -------------------------------
 echo "[+] Updating system packages..."
-sudo apt update && sudo apt upgrade -y
+sudo apt update
 
 echo "[+] Installing required packages..."
 sudo apt install -y chromium x11-xserver-utils xdotool unclutter
