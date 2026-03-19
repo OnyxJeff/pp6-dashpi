@@ -1,57 +1,54 @@
 #!/bin/bash
-#
-# run
-# crontab -e
-# OS-Auto-Updater
-    # 00 01 * * 0 bash /home/potentpi6/pp6-dashpi/scripts/update.sh
-        # execute automatic update script and log every sunday at 01:00 am
-    # 50 00 1 * * /bin/bash -c 'cp /home/potentpi6/pp6-dashpi/logs/update.log /home/potentpi6/pp6-dashpi/backup_logs/update-$(date +\%Y\%m\%d).log'
-        # saves monthly version of "update.log" on the 1st of every month at 00:50 am
-    # 51 00 1 * * rm -f /home/potentpi6/pp6-dashpi/logs/update.log
-        # deletes old weekly log on the 1st of every month at 00:51 am
-# apt-get update script for cron automatization
-# This script is released under the BSD 3-Clause License.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_FILE="$(dirname "$SCRIPT_DIR")/logs/update.log"
 NOW=$(date "+%Y-%m-%d %H:%M:%S")
 
-echo >> "$LOG_FILE"
-date >> "$LOG_FILE"
-echo "############################" >> "$LOG_FILE"
-echo "[$NOW] Starting apt-get autoupdate..." >> "$LOG_FILE"
+# Detect if running in a terminal (not cron)
+if [ -t 1 ]; then
+    # Running interactively → log AND print
+    exec > >(tee -a "$LOG_FILE") 2>&1
+else
+    # Running via cron → log only
+    exec >> "$LOG_FILE" 2>&1
+fi
+
+echo
+date
+echo "############################"
+echo "[$NOW] Starting apt-get autoupdate..."
 
 # Step 1: apt-get update
-echo "[$NOW] Running apt-get update..." >> "$LOG_FILE"
-sudo apt-get update >> "$LOG_FILE" 2>&1
+echo "[$NOW] Running apt-get update..."
+sudo apt-get update
 if [[ $? -ne 0 ]]; then
-    echo "[$NOW] [ERROR] apt-get update failed." >> "$LOG_FILE"
+    echo "[$NOW] [ERROR] apt-get update failed."
     exit 1
 fi
 
 # Step 2: fix broken dependencies
-echo "[$NOW] Running apt-get --fix-broken install..." >> "$LOG_FILE"
-sudo apt-get --fix-broken install -y >> "$LOG_FILE" 2>&1
+echo "[$NOW] Running apt-get --fix-broken install..."
+sudo apt-get --fix-broken install -y
 
 # Step 3: upgrade packages
-echo "[$NOW] Running apt-get upgrade..." >> "$LOG_FILE"
-sudo apt-get upgrade -y >> "$LOG_FILE" 2>&1
+echo "[$NOW] Running apt-get upgrade..."
+sudo apt-get upgrade -y
 if [[ $? -ne 0 ]]; then
-    echo "[$NOW] [ERROR] apt-get upgrade failed." >> "$LOG_FILE"
+    echo "[$NOW] [ERROR] apt-get upgrade failed."
     exit 1
 fi
 
 # Step 4: autoremove
-echo "[$NOW] Running apt-get autoremove..." >> "$LOG_FILE"
-sudo apt-get autoremove -y >> "$LOG_FILE" 2>&1
+echo "[$NOW] Running apt-get autoremove..."
+sudo apt-get autoremove -y
 
 # Step 5: clean
-echo "[$NOW] Running apt-get clean..." >> "$LOG_FILE"
-sudo apt-get clean >> "$LOG_FILE" 2>&1
+echo "[$NOW] Running apt-get clean..."
+sudo apt-get clean
 
 # Step 6: autoclean
-echo "[$NOW] Running apt-get autoclean..." >> "$LOG_FILE"
-sudo apt-get autoclean >> "$LOG_FILE" 2>&1
+echo "[$NOW] Running apt-get autoclean..."
+sudo apt-get autoclean
 
-echo "[$NOW] apt-get autoupdate completed successfully." >> "$LOG_FILE"
+echo "[$NOW] apt-get autoupdate completed successfully."
 exit 0
