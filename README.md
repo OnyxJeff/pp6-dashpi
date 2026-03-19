@@ -54,9 +54,9 @@ git clone https://github.com/OnyxJeff/pp6-dashpi.git
 
 - Update and Upgrade the System via script:
 ```bash
-cd ~/pp2-mimir/scripts
-chmod +x apt-get-autoupdater.sh
-sudo ./apt-get-autoupdater.sh
+cd ~/pp6-dashpi/scripts
+chmod +x update.sh
+sudo ./update.sh
 ```
 It's going to look like this froze, but just let it go.
 
