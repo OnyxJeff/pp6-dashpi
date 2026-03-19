@@ -68,11 +68,11 @@ sudo crontab -e
   - add the following to the bottom of the document:
   ```bash
   # OS-Auto-Updater
-    00 01 * * 0 bash $HOME/pp2-mimir/scripts/apt-get-autoupdater.sh
+    00 01 * * 0 bash /home/potentpi6/pp6-dashpi/scripts/update.sh
       # execute automatic update script and log every sunday at 01:00 am
-    50 00 1 * * /bin/bash -c 'cp $HOME/pp2-mimir/logs/apt-get-autoupdater.log $HOME/pp2-mimir/backup_logs/apt-get-autoupdater-$(date +\%Y\%m\%d).log'
-      # saves monthly version of "apt-get-autoupdater.log" on the 1st of every month at 00:50 am
-    51 00 1 * * rm -f $HOME/pp2-mimir/logs/apt-get-autoupdater.log
+    50 00 1 * * /bin/bash -c 'cp /home/potentpi6/pp6-dashpi/logs/update.log /home/potentpi6/pp6-dashpi/backup_logs/update-$(date +\%Y\%m\%d).log'
+      # saves monthly version of "update.log" on the 1st of every month at 00:50 am
+    51 00 1 * * rm -f /home/potentpi6/pp6-dashpi/logs/update.log
       # deletes old weekly log on the 1st of every month at 00:51 am
   ```
 
