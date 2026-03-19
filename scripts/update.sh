@@ -26,11 +26,7 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-# Step 2: fix broken dependencies
-echo "[$NOW] Running apt-get --fix-broken install..."
-sudo apt-get --fix-broken install -y
-
-# Step 3: upgrade packages
+# Step 2: upgrade packages
 echo "[$NOW] Running apt-get upgrade..."
 sudo apt-get upgrade -y
 if [[ $? -ne 0 ]]; then
@@ -38,15 +34,15 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-# Step 4: autoremove
+# Step 3: autoremove
 echo "[$NOW] Running apt-get autoremove..."
 sudo apt-get autoremove -y
 
-# Step 5: clean
+# Step 4: clean
 echo "[$NOW] Running apt-get clean..."
 sudo apt-get clean
 
-# Step 6: autoclean
+# Step 5: autoclean
 echo "[$NOW] Running apt-get autoclean..."
 sudo apt-get autoclean
 
