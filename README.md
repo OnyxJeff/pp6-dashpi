@@ -50,58 +50,6 @@ git clone https://github.com/OnyxJeff/pp6-dashpi.git
 
 ---
 
-## ⚠️ Updating the OS
-
-- Update and Upgrade the System via script:
-```bash
-cd ~/pp6-dashpi/scripts
-chmod +x update.sh
-sudo ./update.sh
-```
-It's going to look like this froze, but just let it go.
-
-- Start CronJob (optional but recommended if doing headless/always on installation)
-```bash
-sudo crontab -e
-```
-
-  - add the following to the bottom of the document:
-  ```bash
-  # OS-Auto-Updater
-    00 01 * * 0 bash /home/potentpi6/pp6-dashpi/scripts/update.sh
-      # execute automatic update script and log every sunday at 01:00 am
-    50 00 1 * * /bin/bash -c 'cp /home/potentpi6/pp6-dashpi/logs/update.log /home/potentpi6/pp6-dashpi/backup_logs/update-$(date +\%Y\%m\%d).log'
-      # saves monthly version of "update.log" on the 1st of every month at 00:50 am
-    51 00 1 * * rm -f /home/potentpi6/pp6-dashpi/logs/update.log
-      # deletes old weekly log on the 1st of every month at 00:51 am
-  ```
-
-### 🚦 Optional: Auto Updates & Log Rotation
-- Enable update script via cron
-```bash
-sudo crontab -e
-```
-
-- Add:
-```bash
-# OS-Auto-Updater
-  00 01 * * 0 bash $HOME/pp6-dashpi/scripts/update.sh
-    # Runs update script at 1am every Sunday
-  50 00 1 * * cp $HOME/pp6-dashpi/logs/dashpi.log $HOME/pp6-dashpi/backup_logs/dashpi-$(date +\%Y\%m\%d).log
-    # Moves weekly update log to "backup_logs" folder on the 1st of the Month at 12:50am
-  51 00 1 * * rm -f $HOME/pp6-dashpi/logs/dashpi.log
-    # Deletes weekly log from "logs" folder after moving it to "backup_logs" on the 1st of the Month at 12:51am
-```
-
-- Enable WiFi watchdog
-```bash
-# WiFi-Check (every 15 minutes)
-  */15 * * * * bash $HOME/pp6-dashpi/scripts/wifi-check.sh
-```
-> Running every 15 minutes balances reliability and Pi 4b performance.
-
----
-
 ## 🛠️ Configuration
 ### ➤ Installation
 
@@ -154,6 +102,58 @@ nano $HOME/pp6-dashpi/config/wifi-watchdog.conf
 ```
 
 Set interface name and ping target.
+
+---
+
+## ⚠️ Updating the OS
+
+- Update and Upgrade the System via script:
+```bash
+cd ~/pp6-dashpi/scripts
+chmod +x update.sh
+sudo ./update.sh
+```
+It's going to look like this froze, but just let it go.
+
+- Start CronJob (optional but recommended if doing headless/always on installation)
+```bash
+sudo crontab -e
+```
+
+  - add the following to the bottom of the document:
+  ```bash
+  # OS-Auto-Updater
+    00 01 * * 0 bash /home/potentpi6/pp6-dashpi/scripts/update.sh
+      # execute automatic update script and log every sunday at 01:00 am
+    50 00 1 * * /bin/bash -c 'cp /home/potentpi6/pp6-dashpi/logs/update.log /home/potentpi6/pp6-dashpi/backup_logs/update-$(date +\%Y\%m\%d).log'
+      # saves monthly version of "update.log" on the 1st of every month at 00:50 am
+    51 00 1 * * rm -f /home/potentpi6/pp6-dashpi/logs/update.log
+      # deletes old weekly log on the 1st of every month at 00:51 am
+  ```
+
+### 🚦 Optional: Auto Updates & Log Rotation
+- Enable update script via cron
+```bash
+sudo crontab -e
+```
+
+- Add:
+```bash
+# OS-Auto-Updater
+  00 01 * * 0 bash $HOME/pp6-dashpi/scripts/update.sh
+    # Runs update script at 1am every Sunday
+  50 00 1 * * cp $HOME/pp6-dashpi/logs/dashpi.log $HOME/pp6-dashpi/backup_logs/dashpi-$(date +\%Y\%m\%d).log
+    # Moves weekly update log to "backup_logs" folder on the 1st of the Month at 12:50am
+  51 00 1 * * rm -f $HOME/pp6-dashpi/logs/dashpi.log
+    # Deletes weekly log from "logs" folder after moving it to "backup_logs" on the 1st of the Month at 12:51am
+```
+
+- Enable WiFi watchdog
+```bash
+# WiFi-Check (every 15 minutes)
+  */15 * * * * bash $HOME/pp6-dashpi/scripts/wifi-check.sh
+```
+> Running every 15 minutes balances reliability and Pi 4b performance.
 
 ---
 
