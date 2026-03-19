@@ -77,6 +77,31 @@ sudo crontab -e
 ---
 
 ## 🛠️ Configuration
+### ➤ Installation
+
+- On the desktop (using RPi connect or VNC) manually change the resolution to 1080p (or your displays native resolution)
+
+- Run setup (installs Chromium, kiosk desktop service, WiFi watchdog)
+```bash
+cd ~/pp6-dashpi/scripts
+chmod +x setup.sh
+sudo ./setup.sh
+```
+> This runs scripts/configs, sets up systemd services for WiFi watchdog, reboots the device, and starts the kiosk automatically.
+
+### 🧹 Uninstalling
+```bash
+cd ~/pp6-dashpi/scripts
+chmod +x uninstall.sh
+sudo ./uninstall.sh
+```
+
+- This will remove:
+  - systemd services
+  - installed scripts and configs
+  - kiosk auto-start
+  - WiFi watchdog monitor
+
 ### ➤ DakBoard URL
 
 - Edit:
@@ -103,31 +128,6 @@ nano $HOME/pp6-dashpi/config/wifi-watchdog.conf
 ```
 
 Set interface name and ping target.
-
-### ➤ Installation
-
-- On the desktop (using RPi connect or VNC) manually change the resolution to 1080p (or your displays native resolution)
-
-- Run setup (installs Chromium, kiosk desktop service, WiFi watchdog)
-```bash
-cd ~/pp6-dashpi/scripts
-chmod +x setup.sh
-sudo ./setup.sh
-```
-> This runs scripts/configs, sets up systemd services for WiFi watchdog, reboots the device, and starts the kiosk automatically.
-
-## 🧹 Uninstalling
-```bash
-cd ~/pp6-dashpi/scripts
-chmod +x uninstall.sh
-sudo ./uninstall.sh
-```
-
-- This will remove:
-  - systemd services
-  - installed scripts and configs
-  - kiosk auto-start
-  - WiFi watchdog monitor
 
 ---
 
