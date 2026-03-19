@@ -98,7 +98,7 @@ sudo crontab -e
 # WiFi-Check (every 15 minutes)
   */15 * * * * bash $HOME/pp6-dashpi/scripts/wifi-check.sh
 ```
-> Running every 15 minutes balances reliability and Pi Zero 2W performance.
+> Running every 15 minutes balances reliability and Pi 4b performance.
 
 ---
 
