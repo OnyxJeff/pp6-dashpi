@@ -50,6 +50,13 @@ git clone https://github.com/OnyxJeff/pp6-dashpi.git
 
 ---
 
+## ⚠️ Updating the OS
+
+- Update and Upgrade the System
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
 ## 🛠️ Configuration
 ### ➤ Installation
 
