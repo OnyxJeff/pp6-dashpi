@@ -80,7 +80,7 @@ sudo ./uninstall.sh
 
 - Edit:
 ```bash
-nano $HOME/pp6-dashpi/config/dakboard-url.txt.example
+sudo nano $HOME/pp6-dashpi/config/dakboard-url.txt.example
 ```
 
 Paste in your private DakBoard share URL and save as ```dakboard-url.txt```
@@ -89,7 +89,7 @@ Paste in your private DakBoard share URL and save as ```dakboard-url.txt```
 
 - Edit:
 ```bash
-nano $HOME/pp6-dashpi/config/refresh-interval
+sudo nano $HOME/pp6-dashpi/config/refresh-interval
 ```
 
 Specify minutes (e.g., 15).
@@ -98,7 +98,7 @@ Specify minutes (e.g., 15).
 
 - Edit:
 ```bash
-nano $HOME/pp6-dashpi/config/wifi-watchdog.conf
+sudo nano $HOME/pp6-dashpi/config/wifi-watchdog.conf
 ```
 
 Set interface name and ping target.
