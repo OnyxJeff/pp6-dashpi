@@ -51,6 +51,7 @@ done
 # 3️⃣ Fix permissions for logs
 # -------------------------------
 sudo chown -R "$USER_NAME":"$USER_NAME" "$LOG_DIR" "$BACKUP_LOG_DIR"
+chmod +x "$REPO_DIR/scripts/kiosk.sh"
 
 # -------------------------------
 # 4️⃣ Install scripts and systemd services
