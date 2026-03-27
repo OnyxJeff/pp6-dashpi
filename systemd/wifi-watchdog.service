@@ -1,9 +1,10 @@
 [Unit]
 Description=DashPi WiFi Watchdog
-After=network.target
+After=network-online.target
+Wants=network-online.target
 
 [Service]
-User=dashpi
+User=root
 ExecStart=/usr/local/dashpi/scripts/wifi-check.sh
 Restart=always
 RestartSec=300

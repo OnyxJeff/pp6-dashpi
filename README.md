@@ -87,19 +87,19 @@ sudo ./uninstall.sh
 
 - Edit:
 ```bash
-sudo nano $HOME/pp6-dashpi/config/dakboard-url.txt.example
+sudo nano $HOME/pp6-dashpi/config/url.txt.example
 ```
 
-Paste in your private DakBoard share URL and save as ```dakboard-url.txt```
+Paste in your private DakBoard share URL and save as ```url.txt```
 
 ### ➤ Refresh Interval
 
 - Edit:
 ```bash
-sudo nano $HOME/pp6-dashpi/config/refresh-interval
+sudo nano $HOME/pp6-dashpi/config/refresh.txt.example
 ```
 
-Specify minutes (e.g., 15).
+Specify minutes (e.g., 15) and save as ```refresh.txt```
 
 ### ➤ WiFi Watchdog Settings
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# DashPi Desktop Setup Script – Pi 4B 4GB, Chromium Kiosk, WiFi Watchdog, Auto-Update
-# Works with existing scripts and config folder in repo
+# DashPi Desktop Setup Script – Updated for new kiosk + config system
 set -euo pipefail
 
 # -------------------------------
@@ -28,12 +27,12 @@ echo "[+] Installing required packages..."
 sudo apt install -y chromium x11-xserver-utils xdotool unclutter
 
 # -------------------------------
-# 2️⃣ Sync config files if missing
+# 2️⃣ Sync config files (NEW FORMAT)
 # -------------------------------
 declare -A CONFIG_FILES=(
-    ["dakboard-url.txt"]="https://dakboard.com/screen/your-dakboard-share-url"
+    ["url.txt"]="https://example.com"
+    ["refresh.txt"]="300"
     ["wifi-watchdog.conf"]="INTERFACE=\"wlan0\"\nPING_TARGET=\"8.8.8.8\""
-    ["refresh-interval"]="15"
 )
 
 for file in "${!CONFIG_FILES[@]}"; do
@@ -48,7 +47,7 @@ for file in "${!CONFIG_FILES[@]}"; do
 done
 
 # -------------------------------
-# 3️⃣ Fix permissions for logs
+# 3️⃣ Fix permissions
 # -------------------------------
 sudo chown -R "$USER_NAME":"$USER_NAME" "$LOG_DIR" "$BACKUP_LOG_DIR"
 chmod +x "$REPO_DIR/scripts/kiosk.sh"
@@ -56,10 +55,11 @@ chmod +x "$REPO_DIR/scripts/kiosk.sh"
 # -------------------------------
 # 4️⃣ Install scripts and systemd services
 # -------------------------------
-sudo mkdir -p /usr/local/dashpi/scripts /etc/systemd/system
+sudo mkdir -p /usr/local/dashpi/scripts /usr/local/dashpi/config /etc/systemd/system
 sudo cp -r "$REPO_DIR/scripts/"* /usr/local/dashpi/scripts/
+sudo cp -r "$REPO_DIR/config/"* /usr/local/dashpi/config/
 sudo cp -r "$REPO_DIR/systemd/"* /etc/systemd/system/
-sudo chown -R "$USER_NAME":"$USER_NAME" /usr/local/dashpi
+sudo chown -R "$USER_NAME":"$USER_NAME" /usr/local/dashpi/*
 
 # -------------------------------
 # 5️⃣ Enable systemd services
@@ -69,7 +69,7 @@ sudo systemctl enable wifi-watchdog.service
 sudo systemctl start wifi-watchdog.service
 
 # -------------------------------
-# 6️⃣ Set up autostart for kiosk in Desktop OS
+# 6️⃣ Autostart (UPDATED PATH)
 # -------------------------------
 AUTOSTART_DIR="$USER_HOME/.config/autostart"
 mkdir -p "$AUTOSTART_DIR"
@@ -79,7 +79,7 @@ cat > "$KIOSK_DESKTOP" <<EOL
 [Desktop Entry]
 Type=Application
 Name=DashPi Kiosk
-Exec=$REPO_DIR/scripts/kiosk.sh
+Exec=/usr/local/dashpi/scripts/kiosk.sh
 StartupNotify=false
 Terminal=false
 X-GNOME-Autostart-enabled=true
@@ -88,24 +88,19 @@ EOL
 echo "[+] Created autostart entry for kiosk: $KIOSK_DESKTOP"
 
 # ---------------------------------------------------------
-# 🗝️ Reset GNOME Keyring properly (make login keyring blank)
+# 🗝️ Reset GNOME Keyring (unchanged)
 # ---------------------------------------------------------
 echo "[*] Resetting GNOME Keyring to a passwordless login keyring..."
 
 KEYRING_DIR="$USER_HOME/.local/share/keyrings"
 mkdir -p "$KEYRING_DIR"
 
-# Kill any existing keyring daemons so they don’t fight us
 pkill -9 gnome-keyring-daemon 2>/dev/null || true
-
-# Remove old keyring databases that trigger prompts
 rm -f "$KEYRING_DIR"/*.keyring
 rm -f "$KEYRING_DIR"/*.kdbx
 
-# Create a new empty passwordless keyring named "login"
 printf "" | sudo -u "$USER_NAME" secret-tool store --label="login" type login 2>/dev/null || true
 
-# Make "login" the default keyring
 cat > "$KEYRING_DIR/default" <<EOF
 [Default]
 Default=login
@@ -113,16 +108,15 @@ EOF
 
 chmod 600 "$KEYRING_DIR/default"
 
-echo "[+] GNOME keyring successfully reset to blank. No more password prompts."
+echo "[+] GNOME keyring reset complete."
 
 # -------------------------------
 # 7️⃣ Final message
 # -------------------------------
 echo "[+] Setup complete!"
-echo "    - Chromium kiosk will launch at boot using URL from:"
-echo "      $CONFIG_DIR/dakboard-url.txt"
-echo "    - WiFi watchdog service running by systemd."
-echo "    - Logs are stored in $LOG_DIR"
-echo "    - Autostart configured for Desktop session."
-echo "    - rebooting device to autostart kiosk-mode."
+echo "    - URL file: $CONFIG_DIR/url.txt"
+echo "    - Refresh interval: $CONFIG_DIR/refresh.txt"
+echo "    - WiFi watchdog active"
+echo "    - Rebooting..."
+
 sudo shutdown -r now

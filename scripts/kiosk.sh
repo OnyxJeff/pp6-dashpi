@@ -1,39 +1,81 @@
-#!/usr/bin/env bash
-# Launch Chromium on Desktop OS
+#!/bin/bash
 set -euo pipefail
 
-CONFIG_FILE="$HOME/pp6-dashpi/config/dakboard-url.txt"
-REFRESH_FILE="$HOME/pp6-dashpi/config/refresh-interval"
+BASE_DIR="/usr/local/dashpi"
+CONFIG_DIR="$BASE_DIR/config"
 
-URL=$(<"$CONFIG_FILE")
-INTERVAL=$(<"$REFRESH_FILE")
+URL_FILE="$CONFIG_DIR/url.txt"
+REFRESH_FILE="$CONFIG_DIR/refresh.txt"
+CHECK_INTERVAL=5
 
-echo "[+] Starting Chromium kiosk on HDMI (:0)..."
+get_url() {
+    [[ -f "$URL_FILE" ]] && cat "$URL_FILE" || echo "https://example.com"
+}
 
-# Kill existing Chromium
-pkill -f chromium || true
+get_refresh() {
+    if [[ -f "$REFRESH_FILE" ]]; then
+        cat "$REFRESH_FILE"
+    else
+        echo 300
+    fi
+}
 
-# Disable screen blanking
-xset s off
-xset s noblank
+launch_browser() {
+    local URL
+    URL=$(get_url)
 
-# Launch Chromium in kiosk mode
-chromium \
-  --noerrdialogs \
-  --disable-infobars \
-  --kiosk "$URL" &
+    echo "Launching Chromium with URL: $URL"
 
-CHROMIUM_PID=$!
-echo "[+] Chromium launched with PID $CHROMIUM_PID"
+    chromium \
+        --kiosk "$URL" \
+        --start-fullscreen \
+        --noerrdialogs \
+        --disable-session-crashed-bubble \
+        --disable-infobars \
+        --disable-translate \
+        --disable-features=TranslateUI \
+        --incognito \
+        --no-first-run \
+        --check-for-update-interval=31536000 &
+    
+    CHROMIUM_PID=$!
+}
 
-# Keep script alive to allow auto-refresh
+LAST_URL=""
+LAST_REFRESH=0
+LAST_REFRESH_TIME=0
+
+# Optional: hide cursor
+unclutter -idle 0 &
+
 while true; do
-  sleep "${INTERVAL}m"
-  if xdotool search --onlyvisible --class chromium >/dev/null 2>&1; then
-      xdotool search --onlyvisible --class chromium windowactivate key F5
-  else
-      echo "[!] Chromium not running — restarting..."
-      chromium --noerrdialogs --disable-infobars --kiosk "$URL" &
-      CHROMIUM_PID=$!
-  fi
+    CURRENT_URL=$(get_url)
+    CURRENT_REFRESH=$(get_refresh)
+
+    # Restart if URL changed
+    if [[ "$CURRENT_URL" != "$LAST_URL" ]]; then
+        echo "URL changed → restarting Chromium"
+        pkill chromium || true
+        launch_browser
+        LAST_URL="$CURRENT_URL"
+        LAST_REFRESH_TIME=$(date +%s)
+    fi
+
+    # Restart if Chromium died
+    if ! pgrep -x chromium >/dev/null; then
+        echo "Chromium not running → restarting"
+        launch_browser
+        LAST_REFRESH_TIME=$(date +%s)
+    fi
+
+    # Handle auto-refresh timer
+    NOW=$(date +%s)
+    if (( NOW - LAST_REFRESH_TIME >= CURRENT_REFRESH )); then
+        echo "Refreshing page to prevent burn-in..."
+        pkill chromium || true
+        launch_browser
+        LAST_REFRESH_TIME=$NOW
+    fi
+
+    sleep $CHECK_INTERVAL
 done
