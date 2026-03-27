@@ -72,7 +72,7 @@ sudo systemctl enable wifi-watchdog.service
 sudo systemctl start wifi-watchdog.service
 
 # -------------------------------
-# 6️⃣ Autostart (UPDATED PATH)
+# 6️⃣ Autostart
 # -------------------------------
 AUTOSTART_DIR="$USER_HOME/.config/autostart"
 mkdir -p "$AUTOSTART_DIR"
@@ -89,29 +89,6 @@ X-GNOME-Autostart-enabled=true
 EOL
 
 echo "[+] Created autostart entry for kiosk: $KIOSK_DESKTOP"
-
-# ---------------------------------------------------------
-# 🗝️ Reset GNOME Keyring (unchanged)
-# ---------------------------------------------------------
-echo "[*] Resetting GNOME Keyring to a passwordless login keyring..."
-
-KEYRING_DIR="$USER_HOME/.local/share/keyrings"
-mkdir -p "$KEYRING_DIR"
-
-pkill -9 gnome-keyring-daemon 2>/dev/null || true
-rm -f "$KEYRING_DIR"/*.keyring
-rm -f "$KEYRING_DIR"/*.kdbx
-
-printf "" | sudo -u "$USER_NAME" secret-tool store --label="login" type login 2>/dev/null || true
-
-cat > "$KEYRING_DIR/default" <<EOF
-[Default]
-Default=login
-EOF
-
-chmod 600 "$KEYRING_DIR/default"
-
-echo "[+] GNOME keyring reset complete."
 
 # -------------------------------
 # 7️⃣ Final message
