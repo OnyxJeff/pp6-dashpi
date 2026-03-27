@@ -19,7 +19,7 @@ INTERFACE="${INTERFACE:-wlan0}"
 {
     echo "$(date '+%F %T') Checking WiFi..."
     if ! ping -c1 -W2 "$PING_HOST" >/dev/null 2>&1; then
-        echo "$(date '+%F %T') WiFi down — restarting "$INTERFACE"..."
+        echo "$(date '+%F %T') WiFi down — restarting $INTERFACE..."
         ip link set "$INTERFACE" down || true
         sleep 2
         ip link set "$INTERFACE" up || true
