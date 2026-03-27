@@ -51,6 +51,9 @@ done
 # -------------------------------
 sudo chown -R "$USER_NAME":"$USER_NAME" "$LOG_DIR" "$BACKUP_LOG_DIR"
 chmod +x "$REPO_DIR/scripts/kiosk.sh"
+chmod +x "$REPO_DIR/scripts/uninstall.sh"
+chmod +x "$REPO_DIR/scripts/update.sh"
+chmod +x "$REPO_DIR/scripts/wifi-check.sh"
 
 # -------------------------------
 # 4️⃣ Install scripts and systemd services
@@ -118,5 +121,6 @@ echo "    - URL file: $CONFIG_DIR/url.txt"
 echo "    - Refresh interval: $CONFIG_DIR/refresh.txt"
 echo "    - WiFi watchdog active"
 echo "    - Rebooting..."
+sleep 5
 
 sudo shutdown -r now

@@ -139,13 +139,6 @@ sudo crontab -e
     # Deletes weekly log from "logs" folder after moving it to "backup_logs" on the 1st of the Month at 12:51am
 ```
 
-- Enable WiFi watchdog
-```bash
-# WiFi-Check (every 15 minutes)
-  */15 * * * * bash $HOME/pp6-dashpi/scripts/wifi-check.sh
-```
-> Running every 15 minutes balances reliability and Pi 4b performance.
-
 ---
 
 ## Acknowledgements
