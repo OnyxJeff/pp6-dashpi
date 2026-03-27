@@ -3,6 +3,7 @@ set -euo pipefail
 
 LOGFILE="/home/potentpi6/pp6-dashpi/logs/wifi-check.log"
 
+# shellcheck source=/dev/null
 CONFIG_FILE="/usr/local/dashpi/config/wifi-watchdog.conf"
 
 if [[ -f "$CONFIG_FILE" ]]; then

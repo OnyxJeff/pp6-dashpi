@@ -37,12 +37,10 @@ launch_browser() {
         --incognito \
         --no-first-run \
         --check-for-update-interval=31536000 &
-    
-    CHROMIUM_PID=$!
+
 }
 
 LAST_URL=""
-LAST_REFRESH=0
 LAST_REFRESH_TIME=0
 
 # Optional: hide cursor
