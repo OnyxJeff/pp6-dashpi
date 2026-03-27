@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-LOGFILE="/home/dashpi/pp6-dashpi/logs/wifi-check.log"
+LOGFILE="/home/potentpi6/pp6-dashpi/logs/wifi-check.log"
 
 CONFIG_FILE="/usr/local/dashpi/config/wifi-watchdog.conf"
 

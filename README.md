@@ -87,7 +87,7 @@ sudo ./uninstall.sh
 
 - Edit:
 ```bash
-sudo nano $HOME/pp6-dashpi/config/url.txt.example
+sudo nano /usr/local/dashpi/config/url.txt.example
 ```
 
 Paste in your private DakBoard share URL and save as ```url.txt```
@@ -96,7 +96,7 @@ Paste in your private DakBoard share URL and save as ```url.txt```
 
 - Edit:
 ```bash
-sudo nano $HOME/pp6-dashpi/config/refresh.txt.example
+sudo nano /usr/local/dashpi/config/refresh.txt.example
 ```
 
 Specify minutes (e.g., 15) and save as ```refresh.txt```
@@ -105,7 +105,7 @@ Specify minutes (e.g., 15) and save as ```refresh.txt```
 
 - Edit:
 ```bash
-sudo nano $HOME/pp6-dashpi/config/wifi-watchdog.conf
+sudo nano /usr/local/dashpi/config/wifi-watchdog.conf
 ```
 
 Set interface name and ping target.
@@ -121,22 +121,6 @@ chmod +x update.sh
 sudo ./update.sh
 ```
 It's going to look like this froze, but just let it go.
-
-- Start CronJob (optional but recommended if doing headless/always on installation)
-```bash
-sudo crontab -e
-```
-
-  - add the following to the bottom of the document:
-  ```bash
-  # OS-Auto-Updater
-    00 01 * * 0 bash /home/potentpi6/pp6-dashpi/scripts/update.sh
-      # execute automatic update script and log every sunday at 01:00 am
-    50 00 1 * * /bin/bash -c 'cp /home/potentpi6/pp6-dashpi/logs/update.log /home/potentpi6/pp6-dashpi/backup_logs/update-$(date +\%Y\%m\%d).log'
-      # saves monthly version of "update.log" on the 1st of every month at 00:50 am
-    51 00 1 * * rm -f /home/potentpi6/pp6-dashpi/logs/update.log
-      # deletes old weekly log on the 1st of every month at 00:51 am
-  ```
 
 ### 🚦 Optional: Auto Updates & Log Rotation
 - Enable update script via cron
