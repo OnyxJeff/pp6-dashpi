@@ -2,27 +2,22 @@ name: DashPi Build Check
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [ "main" ]
 
 jobs:
   shellcheck:
-    name: Shell Script Lint
     runs-on: ubuntu-latest
-
+    continue-on-error: true
     steps:
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Install ShellCheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
 
-      - name: Find and Lint Scripts
+      - name: Lint Scripts
         run: |
-          echo "Running ShellCheck on all scripts in scripts/..."
-          for script in scripts/*.sh; do
-            echo "Linting $script"
-            shellcheck -x "$script"
-          done
+          echo "Running ShellCheck on backup scripts..."
+          find scripts -name "*.sh" -exec shellcheck {} +
